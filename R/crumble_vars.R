@@ -9,7 +9,7 @@ crumble_vars <- new_class("crumble_vars",
     M = class_character,
     Z = class_character,
     W = class_character,
-    C = new_property(class = class_character, default = "")
+    C = new_property(class = class_character, default = NA_character_)
   ),
   validator = function(self) {
     if (length(self@A) != 1) {
