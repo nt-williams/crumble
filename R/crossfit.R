@@ -1,14 +1,21 @@
-crossfit <- function(train, valid, y, continuous = FALSE, id = NULL, learners, bound = FALSE) {
+crossfit <- function(train, valid, y, continuous = FALSE,
+										 id = NULL, learners, folds = NULL, bound = FALSE) {
 	fit <- mlr3superlearner(
 		data = train,
 		target = y,
 		library = learners,
 		outcome_type = ifelse(continuous, "continuous", "binomial"),
-		folds = NULL,
+		folds = folds,
 		newdata = valid,
 		group = id
 	)
-	preds <- lapply(fit$predseds, function(x) bound(x))
+
+	if (bound) {
+		preds <- lapply(fit$preds, function(x) bound(x))
+	} else {
+		preds <- fit$preds
+	}
+
 	list(weights = fit$weights, preds = preds)
 }
 

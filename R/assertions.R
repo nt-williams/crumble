@@ -1,14 +1,22 @@
-check_not_data_table <- function(x) {
-	is_data_frame <- checkmate::checkDataFrame(x)
-	if (!isTRUE(is_data_frame)) {
-		return(is_data_frame)
+check_for_missing <- function(data, A, W, M, Z) {
+	check <- data[, c(A, W, M, Z), drop = FALSE]
+
+	if (any(is.na(check))) {
+		return("Missing data found in treatment/covariate/mediator nodes")
 	}
 
-	is_data_table <- data.table::is.data.table(x)
-	if (is_data_table) {
-		return("Must be a 'data.frame', not a 'data.table'")
-	}
 	TRUE
 }
 
-assert_not_data_table <- checkmate::makeAssertionFunction(check_not_data_table)
+assert_not_missing <- checkmate::makeAssertionFunction(check_for_missing)
+
+check_binary_0_1 <- function(x) {
+	# Check if there are exactly two unique values and they are not 0 and 1
+	if (length(x) == 2 && !all(x %in% c(0, 1))) {
+		return("The outcome contains exactly two unique values, but they are not 0 and 1.")
+	}
+
+	TRUE
+}
+
+assert_binary_0_1 <- checkmate::makeAssertionFunction(check_binary_0_1)

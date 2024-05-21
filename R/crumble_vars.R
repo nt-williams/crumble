@@ -9,15 +9,18 @@ crumble_vars <- new_class("crumble_vars",
     M = class_character,
     Z = class_character,
     W = class_character,
-    C = new_property(class = class_character, default = NA_character_)
+    C = new_property(class = class_character, default = NA_character_),
+    id = new_property(class = class_character, default = NA_character_)
   ),
   validator = function(self) {
     if (length(self@A) != 1) {
-      "trt must be length 1"
+      "self@trt must be length 1"
     } else if (length(self@Y) != 1) {
-      "outcome must be length 1"
+      "self@outcome must be length 1"
     } else if (length(self@C) != 1) {
-    	"cens must be length 1"
+    	"self@cens must be length 1"
+    } else if (length(self@id) != 1) {
+    	"self@id must be length 1"
     }
   }
 )

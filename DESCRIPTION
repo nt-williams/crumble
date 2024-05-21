@@ -18,17 +18,21 @@ Authors@R:
              role = c("aut", "cph"),
              comment = c(ORCID = "0000-0001-9056-2047")))
 Maintainer: Nicholas Williams <ntw2117@cumc.columbia.edu>
-Description: Efficient, doubly-robust- estimation of interventional (in)direct effects with 
-	high-dimensional mediators and mediator-outcome confounders.
+Description: 
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Depends: 
-    mlr3superlearner (>= 0.1.3),
     S7
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Imports: 
     checkmate,
-    origami
+    Matrix,
+    Rglpk,
+    origami,
+    torch
 Remotes: 
     nt-williams
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
