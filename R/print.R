@@ -1,7 +1,7 @@
 #' @export
 print.crumble <- function(x, ...) {
 	d <- cli::cli_div(theme = list(rule = list("line-type" = "double")))
-	cli::cli_rule(left = "Results {.fn recantings_twins}")
+	cli::cli_rule(left = "Results {.fn crumble}")
 	cli::cli_end(d)
 	cli::cli_h3("{.emph Average Treatment Effect}")
 	cli::cli_text(cat("      "), "{.strong Estimate}: {round(x$ate, 4)}")

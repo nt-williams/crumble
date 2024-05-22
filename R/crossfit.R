@@ -1,6 +1,6 @@
 crossfit <- function(train, valid, y, continuous = FALSE,
 										 id = NULL, learners, folds = NULL, bound = FALSE) {
-	fit <- mlr3superlearner(
+	fit <- mlr3superlearner::mlr3superlearner(
 		data = train,
 		target = y,
 		library = learners,

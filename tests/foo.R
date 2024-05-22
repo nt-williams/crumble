@@ -1,6 +1,6 @@
 library(dplyr)
 
-data <- gendata(500)
+data <- gendata(1e3)
 
 crumble(data, "a", "y", "m", "z", "w",
 				d0 = lmtp::static_binary_off,

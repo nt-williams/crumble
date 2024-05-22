@@ -110,45 +110,55 @@ is_binary <- function(x) {
 }
 
 reduce_bind_reorder <- function(x, .f, name1, name2, i) {
-	Reduce(.f, lapply(lapply(x, \(y) y[[name1]]), \(z) z[[name2]]))[order(i)]
+	vals <- lapply(x, \(y) y[[name1]]) |>
+		lapply(\(z) z[[name2]]) |>
+		Reduce(.f, x = _)
+	vals[order(i)]
 }
 
-recombine_theta_n <- function(..., folds) {
+recombine_theta <- function(..., folds) {
 	x <- list(...)
 	ind <- Reduce(c, lapply(folds, function(x) x[["validation_set"]]))
 
-	bs <- lapply(paste0("b", 1:3),
-							 \(param) sapply(c("000", "111", "011", "010"),
-							 								\(jkl) reduce_bind_reorder(x, c, jkl, param, ind)))
-	names(bs) <- paste0("b", 1:3)
+	.f <- function(x) {
+		ijkl <- names(x[[1]])
 
-	natural <- lapply(paste0(paste0("fit", 1:3), "_natural"),
-										\(param) sapply(c("000", "111", "011", "010"),
-																		\(jkl) reduce_bind_reorder(x, c, jkl, param, ind)))
-	names(natural) <- paste0("natural", 1:3)
+		b_names <- grep("^b", names(x[[1]][[1]]), value = TRUE)
+		bs <- lapply(b_names, \(param) sapply(ijkl, \(ijkl) reduce_bind_reorder(x, c, ijkl, param, ind)))
+		names(bs) <- b_names
 
-	weights <- setNames(
-		lapply(paste0(paste0("fit", 1:3), "_weights"), function(fit) {
-			setNames(lapply(c("000", "111", "011", "010"),
-											\(jkl) lapply(lapply(x, \(y) y[[jkl]]), \(z) z[[fit]])),
-							 c("000", "111", "011", "010"))
-		}),
-		paste0("weights", 1:3)
-	)
+		natural_names <- grep("_natural$", names(x[[1]][[1]]), value = TRUE)
+		natural <- lapply(natural_names, \(param) sapply(ijkl, \(ijkl) reduce_bind_reorder(x, c, ijkl, param, ind)))
+		names(natural) <- natural_names
 
-	list(bs = bs,
-			 natural = natural,
-			 weights = weights)
+		weight_names <- grep("_weights$", names(x[[1]][[1]]), value = TRUE)
+		weights <- setNames(
+			lapply(weight_names, function(fit) {
+				setNames(lapply(ijkl, \(ijkl) lapply(lapply(x, \(y) y[[ijkl]]), \(z) z[[fit]])),
+								 ijkl)
+			}),
+			weight_names
+		)
+
+		list(bs = bs,
+				 natural = natural,
+				 weights = weights)
+	}
+
+	list(theta_n = .f(lapply(x, \(x) x$n)),
+			 theta_r = .f(lapply(x, \(x) x$r)))
 }
 
-recombine_alpha_n <- function(..., folds) {
+recombine_alpha <- function(..., folds) {
 	x <- list(...)
 	ind <- Reduce(c, lapply(folds, function(x) x[["validation_set"]]))
-
+	ijkl <- names(x[[1]])
+	browser()
+	alpha_names <- grep("^alpha", names(x[[1]][[1]]), value = TRUE)
 	setNames(
-		lapply(paste0("alpha", 1:3),
-					 \(param) sapply(c("000", "111", "011", "010"),
-					 								\(jkl) reduce_bind_reorder(x, c, jkl, param, ind))),
-		paste0("alpha", 1:3)
+		lapply(alpha_names,
+					 \(param) sapply(ijkl,
+					 								\(ijkl) reduce_bind_reorder(x, c, ijkl, param, ind))),
+		alpha_names
 	)
 }

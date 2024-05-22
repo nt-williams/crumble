@@ -23,6 +23,7 @@ License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Depends: 
+    data.table,
     S7
 RoxygenNote: 7.3.1
 Imports: 
@@ -30,8 +31,11 @@ Imports:
     Matrix,
     Rglpk,
     origami,
-    torch
-Remotes: 
+    torch,
+    Rsymphony,
+    mlr3superlearner (>= 0.1.1)
+Remotes:  
+    nt-williams,
     nt-williams
 Suggests: 
     testthat (>= 3.0.0)
