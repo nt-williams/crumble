@@ -12,7 +12,7 @@ crumble_data <- new_class("crumble_data",
 			class_data.frame,
 			getter = function(self) shift_data(self@data, self@vars@A, self@vars@C, self@d1)
 		),
-		data_0zp = new_property(class_data.frame),
+		data_0zp = new_property(class_data.frame)
 		# Don't actually need this
 		# data_1zp = new_property(class_data.frame)
 	),

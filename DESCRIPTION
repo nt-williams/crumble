@@ -32,11 +32,11 @@ Imports:
     Rglpk,
     origami,
     torch,
-    Rsymphony,
-    mlr3superlearner (>= 0.1.1)
-Remotes:  
-    nt-williams,
-    nt-williams
+    Rsymphony, 
+    doFuture, 
+    foreach
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Remotes:  
+    nt-williams/mlr3superlearner

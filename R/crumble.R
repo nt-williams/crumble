@@ -1,3 +1,23 @@
+#' Title
+#'
+#' @param data
+#' @param trt
+#' @param outcome
+#' @param mediators
+#' @param moc
+#' @param covar
+#' @param cens
+#' @param id
+#' @param d0
+#' @param d1
+#' @param learners_regressions
+#' @param nn_riesz_module
+#' @param control
+#'
+#' @return
+#' @export
+#'
+#' @examples
 crumble <- function(data,
 										trt,
 										outcome,
@@ -43,9 +63,9 @@ crumble <- function(data,
 	folds <- make_folds(cd@data, control@crossfit_folds)
 
 	# Estimate \theta nuisance parameters
-	thetas <- foreach(i = 1:control@crossfit_folds,
-										.combine = \(...) recombine_theta(..., folds = folds),
-										.options.future = list(seed = TRUE)) %dofuture% {
+	thetas <- foreach::foreach(i = 1:control@crossfit_folds,
+														 # .combine = \(...) recombine_theta(..., folds = folds),
+														 .options.future = list(seed = TRUE)) %dofuture% {
 		# Training
 		train <- training(cd, folds, i)
 		# Validation
@@ -54,8 +74,9 @@ crumble <- function(data,
 		theta(train, valid, cd@vars, learners_regressions, control)
 	}
 
-	alpha_ns <- foreach(i = 1:control@crossfit_folds,
-											.combine = \(...) recombine_alpha(..., folds = folds)) %dofuture% {
+	thetas <- recombine_theta(thetas, folds)
+
+	alpha_ns <- foreach::foreach(i = 1:control@crossfit_folds) %dofuture% {
 		# Training
 		train <- training(cd, folds, i)
 		# Validation
@@ -69,8 +90,9 @@ crumble <- function(data,
 		)
 	}
 
-	alpha_rs <- foreach(i = 1:control@crossfit_folds,
-											.combine = \(...) recombine_alpha(..., folds = folds)) %dofuture% {
+	alpha_ns <- recombine_alpha(alpha_ns, folds)
+
+	alpha_rs <- foreach::foreach(i = 1:control@crossfit_folds) %dofuture% {
 		# Training
 		train <- training(cd, folds, i)
 		# Validation
@@ -82,6 +104,8 @@ crumble <- function(data,
 			"0010" = phi_r_alpha(train, valid, cd@vars, nn_riesz_module, "data_0zp", "data_0", "data_1", "data_0", control)
 		)
 	}
+
+	alpha_rs <- recombine_alpha(alpha_rs, folds)
 
 	eif_ns <- sapply(c("000", "111", "011", "010"), \(jkl) eif_n(cd, thetas$theta_n, alpha_ns, jkl))
 	eif_rs <- sapply(c("0111", "0011", "0010"), \(ijkl) eif_r(cd, thetas$theta_r, alpha_rs, ijkl))
