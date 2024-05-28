@@ -160,3 +160,32 @@ recombine_alpha <- function(x, folds) {
 		alpha_names
 	)
 }
+
+calc_estimates <- function(eif_ns, eif_rs) {
+	list(
+		# A -> Y
+		p1 = mean(eif_ns[, "111"] - eif_ns[, "011"]),
+		eif_p1 = eif_ns[, "111"] - eif_ns[, "011"],
+		# A -> Z -> Y
+		p2 = mean(eif_rs[, "0111"] - eif_rs[, "0011"]),
+		eif_p2 = eif_rs[, "0111"] - eif_rs[, "0011"],
+		# A -> Z -> M -> Y
+		p3 = mean(eif_rs[, "0011"] - eif_rs[, "0010"]),
+		eif_p3 = eif_rs[, "0011"] - eif_rs[, "0010"],
+		# A -> M -> Y
+		p4 = mean(eif_ns[, "010"] - eif_ns[, "000"]),
+		eif_p4 = eif_ns[, "010"] - eif_ns[, "000"],
+		# Intermediate confounding
+		intermediate_confounding = mean(
+			eif_ns[, "011"] - eif_rs[, "0111"] +
+				eif_rs[, "0011"] - eif_rs[, "0011"] +
+				eif_rs[, "0010"] - eif_ns[, "010"]
+		),
+		eif_intermediate_confounding =
+			eif_ns[, "011"] - eif_rs[, "0111"] +
+			eif_rs[, "0011"] - eif_rs[, "0011"] +
+			eif_rs[, "0010"] - eif_ns[, "010"],
+		ate = mean(eif_ns[, "111"] - eif_ns[, "000"]),
+		eif_ate = eif_ns[, "111"] - eif_ns[, "000"]
+	)
+}

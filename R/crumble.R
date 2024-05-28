@@ -39,6 +39,8 @@ crumble <- function(data,
 	checkmate::assert_function(d1, nargs = 2, null.ok = TRUE)
 	checkmate::assert_function(nn_riesz_module)
 
+	call <- match.call()
+
 	# Create crumble_data object
 	cd <- crumble_data(
 		data = data,
@@ -113,30 +115,13 @@ crumble <- function(data,
 	# Estimates ---------------------------------------------------------------
 
 	out <- list(
-		# A -> Y
-		p1 = mean(eif_ns[, "111"] - eif_ns[, "011"]),
-		eif_p1 = eif_ns[, "111"] - eif_ns[, "011"],
-		# A -> Z -> Y
-		p2 = mean(eif_rs[, "0111"] - eif_rs[, "0011"]),
-		eif_p2 = eif_rs[, "0111"] - eif_rs[, "0011"],
-		# A -> Z -> M -> Y
-		p3 = mean(eif_rs[, "0011"] - eif_rs[, "0010"]),
-		eif_p3 = eif_rs[, "0011"] - eif_rs[, "0010"],
-		# A -> M -> Y
-		p4 = mean(eif_ns[, "010"] - eif_ns[, "000"]),
-		eif_p4 = eif_ns[, "010"] - eif_ns[, "000"],
-		# Intermediate confounding
-		intermediate_confounding = mean(
-			eif_ns[, "011"] - eif_rs[, "0111"] +
-				eif_rs[, "0011"] - eif_rs[, "0011"] +
-				eif_rs[, "0010"] - eif_ns[, "010"]
-		),
-		eif_intermediate_confounding =
-			eif_ns[, "011"] - eif_rs[, "0111"] +
-			eif_rs[, "0011"] - eif_rs[, "0011"] +
-			eif_rs[, "0010"] - eif_ns[, "010"],
-		ate = mean(eif_ns[, "111"] - eif_ns[, "000"]),
-		eif_ate = eif_ns[, "111"] - eif_ns[, "000"]
+		estimates = calc_estimates(eif_ns, eif_rs),
+		outcome_reg = thetas,
+		alpha_n = alpha_ns,
+		alpha_r = alpha_rs,
+		fits = list(theta_n = thetas$theta_n$weights,
+								theta_r = thetas$theta_r$weights),
+		call = call
 	)
 
 	class(out) <- "crumble"
