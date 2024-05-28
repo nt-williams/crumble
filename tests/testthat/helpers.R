@@ -13,7 +13,7 @@ gendata <- function(n = 1e3) {
 	)
 }
 
-datagen2 <- function(n) {
+gendata2 <- function(n = 1e3) {
 	lambda1 = 0.8
 	lambda2 = 0.6
 	gamma1 = 0.6
@@ -24,7 +24,7 @@ datagen2 <- function(n) {
 	W_3 <- rbeta(n, 2, 3)
 	A <- rbinom(n, 1, plogis(0.5 * W_1 + 0.5 * W_2 - 1))
 	Z_1 <- truncnorm::rtruncnorm(n, a = -1, b = 1, mean = -0.4 + 0 * A + 0.2 * (W_3) ** 2)
-	Z_2 <- truncnorm::rtruncnorm(n, a = -1, b = 1, mean = 0.2 - 0 * A + 0.5 * sin(W_2))
+	Z_2 <- truncnorm::rtruncnorm(n, a = -1, b = 1, mean = 0.2 - 0.7 * A + 0.5 * sin(W_2))
 	M_1 <- truncnorm::rtruncnorm(n, a = -1, b = 1, mean = -0.5 + lambda1 * Z_1 + lambda2 * A + 0.4 * W_2 + 0.2 * W_3)
 	M_2 <- truncnorm::rtruncnorm(n, a = -1, b = 1, mean = -0.5 + lambda1 * Z_2 + lambda2 * A + 0.4 * W_1 + 0.2 * W_3)
 	Y <- rnorm(n, mean = 0.2 * M_1 + 0.2 * M_2 + gamma1 * Z_1 / 2 + gamma1 * Z_2 / 2 + gamma2 * A - 0.5 * cos(W_1) - 1.5)

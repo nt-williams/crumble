@@ -1,16 +1,30 @@
-#' Title
+#' Mediation Analysis Using Modified Treatment Policies and Recanting Twins
 #'
-#' @param data
-#' @param trt
-#' @param outcome
+#' @param data [\code{data.frame}]\cr
+#'  A \code{data.frame} in wide format containing all necessary variables
+#'  for the estimation problem.
+#' @param trt [\code{character}]\cr
+#'  A vector containing the column names of treatment variables.
+#' @param outcome [\code{character(1)}]\cr
+#'  The column name of the outcome variable.
 #' @param mediators
 #' @param moc
-#' @param covar
-#' @param cens
-#' @param id
-#' @param d0
-#' @param d1
-#' @param learners_regressions
+#' @param covar [\code{character}]\cr
+#'  An optional vector containing the column names of baseline covariates to be
+#'  controlled for.
+#' @param cens [\code{character(1)}]\cr
+#'  An optional vector of column name of a censoring indicator. Must be provided if
+#'  there is missingness in the outcome.
+#' @param id [\code{character(1)}]\cr
+#'  An optional column name containing cluster level identifiers.
+#' @param d0 [\code{closure}]\cr
+#'  A two argument function that specifies how treatment variables should be shifted.
+#'  See examples for how to specify shift functions for continuous, binary, and categorical exposures.
+#' @param d1 [\code{closure}\]\cr
+#'  A two argument function that specifies how treatment variables should be shifted.
+#'  See examples for how to specify shift functions for continuous, binary, and categorical exposures.
+#' @param learners_regressions [\code{character}]\cr A vector of \code{mlr3superlearner} algorithms
+#'  for estimation of the outcome regressions. Default is \code{"glm"}, a main effects GLM.
 #' @param nn_riesz_module
 #' @param control
 #'
