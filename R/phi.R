@@ -1,7 +1,12 @@
 phi_n_alpha <- function(train, valid, vars, architecture, j, k, l, control) {
-	.f1 <- \(alpha, data) alpha(as_torch(data[[l]][, c(vars@A, vars@W)]))
-	.f2 <- \(alpha, data) alpha(as_torch(data[[k]][, c(vars@A, vars@Z, vars@W)]))
-	.f3 <- \(alpha, data) alpha(as_torch(data[[j]][, c(vars@A, vars@M, vars@Z, vars@W)]))
+	if (!is.na(vars@Z)) {
+		.f1 <- \(alpha, data) alpha(as_torch(data[[l]][, c(vars@A, vars@W)]))
+		.f2 <- \(alpha, data) alpha(as_torch(data[[k]][, c(vars@A, vars@Z, vars@W)]))
+		.f3 <- \(alpha, data) alpha(as_torch(data[[j]][, c(vars@A, vars@M, vars@Z, vars@W)]))
+	} else {
+		.f1 <- \(alpha, data) alpha(as_torch(data[[k]][, c(vars@A, vars@W)]))
+		.f3 <- \(alpha, data) alpha(as_torch(data[[j]][, c(vars@A, vars@M, vars@W)]))
+	}
 
 	alpha1 <- alpha_n(
 		train = train,
@@ -13,30 +18,40 @@ phi_n_alpha <- function(train, valid, vars, architecture, j, k, l, control) {
 		control = control
 		)
 
-	alpha2 <- alpha_n(
-		train = train,
-		valid = valid,
-		vars = c(vars@A, vars@Z, vars@W),
-		architecture = architecture,
-		.f = .f2,
-		weights = alpha1,
-		control = control
-	)
+	if (!is.na(vars@Z)) {
+		alpha2 <- alpha_n(
+			train = train,
+			valid = valid,
+			vars = c(vars@A, vars@Z, vars@W),
+			architecture = architecture,
+			.f = .f2,
+			weights = alpha1,
+			control = control
+		)
+	} else {
+		alpha2 <- alpha1
+	}
 
 	alpha3 <- alpha_n(
 		train = train,
 		valid = valid,
-		vars = c(vars@A, vars@M, vars@Z, vars@W),
+		vars = na.omit(c(vars@A, vars@M, vars@Z, vars@W)),
 		architecture = architecture,
 		.f = .f3,
 		weights = alpha2,
 		control = control
 	)
 
-	list(jkl = gsub("data_", "", paste0(j, k, l, collapse = "")),
-			 alpha1 = alpha1,
-			 alpha2 = alpha2,
-			 alpha3 = alpha3)
+	if (!is.na(vars@Z)) {
+		list(jkl = gsub("data_", "", paste0(j, k, l, collapse = "")),
+				 alpha1 = alpha1,
+				 alpha2 = alpha2,
+				 alpha3 = alpha3)
+	} else {
+		list(jk = gsub("data_", "", paste0(j, k, collapse = "")),
+				 alpha1 = alpha1,
+				 alpha2 = alpha3)
+	}
 }
 
 phi_r_alpha <- function(train, valid, vars, architecture, i, j, k, l, control) {

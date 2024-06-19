@@ -16,3 +16,11 @@ eif_r <- function(cd, theta, alpha, ijkl) {
 		alpha$alpha1[, ijkl]*(theta$bs$b2[, ijkl] - theta$natural$fit1_natural[, ijkl]) +
 		theta$bs$b1[, ijkl]
 }
+
+eif_natural <- function(cd, theta, alpha, jk) {
+	Y <- cd@data[[cd@vars@Y]]
+
+	alpha$alpha2[, jk]*(Y - theta$natural$fit2_natural[, jk]) +
+		alpha$alpha1[, jk]*(theta$bs$b2[, jk] - theta$natural$fit1_natural[, jk]) +
+		theta$bs$b1[, jk]
+}

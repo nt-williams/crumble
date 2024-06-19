@@ -100,33 +100,48 @@ crumble <- function(data,
 		# Validation
 		valid <- validation(cd, folds, i)
 
-		list(
-			"000" = phi_n_alpha(train, valid, cd@vars, nn_riesz_module, "data_0", "data_0", "data_0", control),
-			"111" = phi_n_alpha(train, valid, cd@vars, nn_riesz_module, "data_1", "data_1", "data_1", control),
-			"011" = phi_n_alpha(train, valid, cd@vars, nn_riesz_module, "data_0", "data_1", "data_1", control),
-			"010" = phi_n_alpha(train, valid, cd@vars, nn_riesz_module, "data_0", "data_1", "data_0", control)
-		)
+		if (!is.null(moc)) {
+			list(
+				"000" = phi_n_alpha(train, valid, cd@vars, nn_riesz_module, "data_0", "data_0", "data_0", control),
+				"111" = phi_n_alpha(train, valid, cd@vars, nn_riesz_module, "data_1", "data_1", "data_1", control),
+				"011" = phi_n_alpha(train, valid, cd@vars, nn_riesz_module, "data_0", "data_1", "data_1", control),
+				"010" = phi_n_alpha(train, valid, cd@vars, nn_riesz_module, "data_0", "data_1", "data_0", control)
+			)
+		} else {
+			# The values of l are arbitrary in this case
+			list(
+				"00" = phi_n_alpha(train, valid, cd@vars, nn_riesz_module, "data_0", "data_0", "data_0", control),
+				"11" = phi_n_alpha(train, valid, cd@vars, nn_riesz_module, "data_1", "data_1", "data_1", control),
+				"01" = phi_n_alpha(train, valid, cd@vars, nn_riesz_module, "data_0", "data_1", "data_1", control)
+			)
+		}
 	}
 
 	alpha_ns <- recombine_alpha(alpha_ns, folds)
 
-	alpha_rs <- foreach::foreach(i = 1:control@crossfit_folds) %dofuture% {
-		# Training
-		train <- training(cd, folds, i)
-		# Validation
-		valid <- validation(cd, folds, i)
+	if (!is.null(moc)) {
+		alpha_rs <- foreach::foreach(i = 1:control@crossfit_folds) %dofuture% {
+			# Training
+			train <- training(cd, folds, i)
+			# Validation
+			valid <- validation(cd, folds, i)
 
-		list(
-			"0111" = phi_r_alpha(train, valid, cd@vars, nn_riesz_module, "data_0zp", "data_1", "data_1", "data_1", control),
-			"0011" = phi_r_alpha(train, valid, cd@vars, nn_riesz_module, "data_0zp", "data_0", "data_1", "data_1", control),
-			"0010" = phi_r_alpha(train, valid, cd@vars, nn_riesz_module, "data_0zp", "data_0", "data_1", "data_0", control)
-		)
+			list(
+				"0111" = phi_r_alpha(train, valid, cd@vars, nn_riesz_module, "data_0zp", "data_1", "data_1", "data_1", control),
+				"0011" = phi_r_alpha(train, valid, cd@vars, nn_riesz_module, "data_0zp", "data_0", "data_1", "data_1", control),
+				"0010" = phi_r_alpha(train, valid, cd@vars, nn_riesz_module, "data_0zp", "data_0", "data_1", "data_0", control)
+			)
+		}
+
+		alpha_rs <- recombine_alpha(alpha_rs, folds)
+
+		eif_ns <- sapply(c("000", "111", "011", "010"), \(jkl) eif_n(cd, thetas$theta_n, alpha_ns, jkl))
+		eif_rs <- sapply(c("0111", "0011", "0010"), \(ijkl) eif_r(cd, thetas$theta_r, alpha_rs, ijkl))
+	} else {
+		eif_ns <- sapply(c("00", "11", "01"), \(jk) eif_natural(cd, thetas$theta_n, alpha_ns, jk))
+		eif_rs <- NULL
+		alpha_rs <- NULL
 	}
-
-	alpha_rs <- recombine_alpha(alpha_rs, folds)
-
-	eif_ns <- sapply(c("000", "111", "011", "010"), \(jkl) eif_n(cd, thetas$theta_n, alpha_ns, jkl))
-	eif_rs <- sapply(c("0111", "0011", "0010"), \(ijkl) eif_r(cd, thetas$theta_r, alpha_rs, ijkl))
 
 	# Estimates ---------------------------------------------------------------
 
@@ -137,7 +152,8 @@ crumble <- function(data,
 		alpha_r = alpha_rs,
 		fits = list(theta_n = thetas$theta_n$weights,
 								theta_r = thetas$theta_r$weights),
-		call = call
+		call = call,
+		natural = is.null(moc)
 	)
 
 	class(out) <- "crumble"
