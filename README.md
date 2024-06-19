@@ -10,8 +10,8 @@
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![CRAN
-status](https://www.r-pkg.org/badges/version/crumble)](https://CRAN.R-project.org/package=crumble)[![License:
-GPL
+status](https://www.r-pkg.org/badges/version/crumble)](https://CRAN.R-project.org/package=crumble)
+[![License: GPL
 v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 <!-- badges: end -->

@@ -17,10 +17,8 @@ crumble_data <- new_class("crumble_data",
 		# data_1zp = new_property(class_data.frame)
 	),
 	validator = function(self) {
-		all_vars <- c(self@vars@A, self@vars@W, self@vars@Z, self@vars@M, self@vars@Y)
-		if (!is.na(self@vars@C)) {
-			all_vars <- c(all_vars, self@vars@C)
-		}
+		all_vars <- c(self@vars@A, self@vars@W, self@vars@Z, self@vars@M, self@vars@C, self@vars@Y)
+		all_vars <- as.vector(na.omit(all_vars))
 
 		if (!all(all_vars %in% names(self@data))) {
 			"self@data must contain all variables in self@vars"

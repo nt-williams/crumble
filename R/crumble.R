@@ -36,7 +36,7 @@ crumble <- function(data,
 										trt,
 										outcome,
 										mediators,
-										moc,
+										moc = NULL,
 										covar,
 										cens = NULL,
 										id = NULL,
@@ -62,7 +62,7 @@ crumble <- function(data,
 			A = trt,
 			Y = outcome,
 			M = mediators,
-			Z = moc,
+			Z = moc %??% NA_character_,
 			W = covar,
 			C = cens %??% NA_character_,
 			id = id %??% NA_character_
@@ -72,8 +72,10 @@ crumble <- function(data,
 	)
 
 	# Create permuted Z
-	cd@data_0zp <- cd@data_0
-	cd@data_0zp[, cd@vars@Z] <- set_zp(cd)
+	if (!is.null(moc)) {
+		cd@data_0zp <- cd@data_0
+		cd@data_0zp[, cd@vars@Z] <- set_zp(cd)
+	}
 
 	# Create folds for cross fitting
 	folds <- make_folds(cd@data, control@crossfit_folds)
