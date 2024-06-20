@@ -141,7 +141,7 @@ recombine_theta <- function(x, folds) {
 
 		list(bs = bs,
 				 natural = natural,
-				 weights = weights)
+				 weights = simplify_weights(weights))
 	}
 
 	list(theta_n = .f(lapply(x, \(x) x$n)),
@@ -212,3 +212,8 @@ calc_estimates_rt <- function(eif_ns, eif_rs) {
 }
 
 no_Z <- function(vars) any(is.na(vars@Z))
+
+simplify_weights <- function(weights) {
+	purrr::map_depth(weights, 3, \(x) data.frame(as.list(x))) |>
+		purrr::map_depth(2, dplyr::bind_rows)
+}

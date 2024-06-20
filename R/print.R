@@ -3,7 +3,7 @@ print.crumble <- function(x, ...) {
 	d <- cli::cli_div(theme = list(rule = list("line-type" = "double")))
 	cli::cli_rule(left = "Results {.fn crumble}")
 	cli::cli_end(d)
-	cli::cli_h3("{.emph Average Treatment Effect}")
+	cli::cli_h3("{.emph Comparitive Treatment Effect |-> d1 - d0}")
 	cli::cli_text(cat("      "), "{.strong Estimate}: {round(x$estimates$ate, 4)}")
 	cli::cli_text(cat("    "), "{.strong Std. error}: {round(calc_stderror(x$estimates$eif_ate), 4)}")
 	cli::cli_text(cat("        "), "{.strong 95% CI}: ({round(calc_ci(x$estimates$ate, x$estimates$eif_ate)[1], 4)}, {round(calc_ci(x$estimates$ate, x$estimates$eif_ate)[2], 4)})")
