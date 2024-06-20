@@ -210,3 +210,5 @@ calc_estimates_rt <- function(eif_ns, eif_rs) {
 		eif_ate = eif_ns[, "111"] - eif_ns[, "000"]
 	)
 }
+
+no_Z <- function(vars) any(is.na(vars@Z))

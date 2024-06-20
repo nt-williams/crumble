@@ -1,5 +1,5 @@
 phi_n_alpha <- function(train, valid, vars, architecture, j, k, l, control) {
-	if (!is.na(vars@Z)) {
+	if (!no_Z(vars)) {
 		.f1 <- \(alpha, data) alpha(as_torch(data[[l]][, c(vars@A, vars@W)]))
 		.f2 <- \(alpha, data) alpha(as_torch(data[[k]][, c(vars@A, vars@Z, vars@W)]))
 		.f3 <- \(alpha, data) alpha(as_torch(data[[j]][, c(vars@A, vars@M, vars@Z, vars@W)]))
@@ -18,7 +18,7 @@ phi_n_alpha <- function(train, valid, vars, architecture, j, k, l, control) {
 		control = control
 		)
 
-	if (!is.na(vars@Z)) {
+	if (!no_Z(vars)) {
 		alpha2 <- alpha_n(
 			train = train,
 			valid = valid,
@@ -42,7 +42,7 @@ phi_n_alpha <- function(train, valid, vars, architecture, j, k, l, control) {
 		control = control
 	)
 
-	if (!is.na(vars@Z)) {
+	if (!no_Z(vars)) {
 		list(jkl = gsub("data_", "", paste0(j, k, l, collapse = "")),
 				 alpha1 = alpha1,
 				 alpha2 = alpha2,

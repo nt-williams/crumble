@@ -4,18 +4,21 @@ crumble_data <- new_class("crumble_data",
 		vars = new_property(new_class("crumble_vars")),
 		d0 = new_property(class_function, default = NULL),
 		d1 = new_property(class_function, default = NULL),
-		data_0 = new_property(
-			class_data.frame,
-			getter = function(self) shift_data(self@data, self@vars@A, self@vars@C, self@d0)
-		),
-		data_1 = new_property(
-			class_data.frame,
-			getter = function(self) shift_data(self@data, self@vars@A, self@vars@C, self@d1)
-		),
+		data_0 = new_property(class_data.frame),
+		data_1 = new_property(class_data.frame),
 		data_0zp = new_property(class_data.frame)
-		# Don't actually need this
-		# data_1zp = new_property(class_data.frame)
+		# Don't need data_1zp
 	),
+	constructor = function(data, vars, d0, d1) {
+		new_object(S7_object(),
+							 data = data,
+							 vars = vars,
+							 d0 = d0,
+							 d1 = d1,
+							 data_0 = shift_data(data, vars@A, vars@C, d0),
+							 data_1 = shift_data(data, vars@A, vars@C, d1),
+							 data_0zp = class_missing)
+	},
 	validator = function(self) {
 		all_vars <- c(self@vars@A, self@vars@W, self@vars@Z, self@vars@M, self@vars@C, self@vars@Y)
 		all_vars <- as.vector(na.omit(all_vars))

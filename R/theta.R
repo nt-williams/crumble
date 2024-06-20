@@ -15,7 +15,7 @@ theta <- function(train, valid, vars, learners, control) {
 
 	# \theta_n ----------------------------------------------------------------
 
-	if (!is.na(vars@Z)) {
+	if (!no_Z(vars)) {
 		params <- list(c("data_0", "data_0", "data_0"),
 									 c("data_1", "data_1", "data_1"),
 									 c("data_0", "data_1", "data_1"),
@@ -37,13 +37,13 @@ theta <- function(train, valid, vars, learners, control) {
 		k <- params[[s]]["k"]
 		l <- params[[s]]["l"]
 
-		if (!is.na(vars@Z)) {
+		if (!no_Z(vars)) {
 			b3 <- theta_y$preds[[j]]
 		} else {
 			b2 <- theta_y$preds[[j]]
 		}
 
-		if (!is.na(vars@Z)) {
+		if (!no_Z(vars)) {
 			theta2 <- crossfit(
 				train = add_psuedo(train$data[, c(vars@A, vars@W, vars@Z)], b3),
 				valid = valid,
@@ -69,7 +69,7 @@ theta <- function(train, valid, vars, learners, control) {
 			bound = FALSE
 		)
 
-		if (!is.na(vars@Z)) {
+		if (!no_Z(vars)) {
 			b1 <- theta1$preds[[l]]
 
 			vals_n[[s]] <- list(
@@ -97,7 +97,7 @@ theta <- function(train, valid, vars, learners, control) {
 		}
 	}
 
-	if (is.na(vars@Z)) {
+	if (no_Z(vars)) {
 		return(list(n = vals_n))
 	}
 
