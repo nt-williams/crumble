@@ -1,5 +1,6 @@
 #' @export
 print.crumble <- function(x, ...) {
+	cat("\n")
 	d <- cli::cli_div(theme = list(rule = list("line-type" = "double")))
 	cli::cli_rule(left = "Results {.fn crumble}")
 	cli::cli_end(d)

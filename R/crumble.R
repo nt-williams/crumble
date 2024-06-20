@@ -80,9 +80,9 @@ crumble <- function(data,
 	# Create folds for cross fitting
 	folds <- make_folds(cd@data, control@crossfit_folds)
 
+	cli::cli_progress_step("Fitting outcome regressions...")
 	# Estimate \theta nuisance parameters
 	thetas <- foreach::foreach(i = 1:control@crossfit_folds,
-														 # .combine = \(...) recombine_theta(..., folds = folds),
 														 .options.future = list(seed = TRUE)) %dofuture% {
 		# Training
 		train <- training(cd, folds, i)
@@ -94,6 +94,7 @@ crumble <- function(data,
 
 	thetas <- recombine_theta(thetas, folds)
 
+	cli::cli_progress_step("Computing alpha n density ratios...")
 	alpha_ns <- foreach::foreach(i = 1:control@crossfit_folds) %dofuture% {
 		# Training
 		train <- training(cd, folds, i)
@@ -120,6 +121,7 @@ crumble <- function(data,
 	alpha_ns <- recombine_alpha(alpha_ns, folds)
 
 	if (!is.null(moc)) {
+		cli::cli_progress_step("Computing alpha r density ratios...")
 		alpha_rs <- foreach::foreach(i = 1:control@crossfit_folds) %dofuture% {
 			# Training
 			train <- training(cd, folds, i)

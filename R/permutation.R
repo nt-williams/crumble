@@ -14,6 +14,7 @@ linear_permutation <- function(data) {
 set_zp <- function(cd, folds) {
 	folds <- make_folds(cd@data, folds)
 
+	cli::cli_progress_step("Permuting Z-prime variables...")
 	permute <- function(cd, i) {
 		zp <- data.frame(matrix(NA, nrow = nrow(cd@data), ncol = length(cd@vars@Z)))
 		names(zp) <- cd@vars@Z
