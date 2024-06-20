@@ -74,7 +74,7 @@ crumble <- function(data,
 	# Create permuted Z
 	if (!is.null(moc)) {
 		cd@data_0zp <- cd@data_0
-		cd@data_0zp[, cd@vars@Z] <- set_zp(cd)
+		cd@data_0zp[, cd@vars@Z] <- set_zp(cd, control@zprime_folds)
 	}
 
 	# Create folds for cross fitting

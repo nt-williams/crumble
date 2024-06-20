@@ -11,11 +11,30 @@ linear_permutation <- function(data) {
 	matrix(Rsymphony::Rsymphony_solve_LP(d, A, dir = rep("==", nrow(b)), rhs = b)$solution, n, n)
 }
 
-set_zp <- function(cd) {
-	P <- linear_permutation(cd@data[, c(cd@vars@A, cd@vars@W)])
-	zp <- cd@data[, cd@vars@Z, drop = FALSE]
-	for (z in cd@vars@Z) {
-		zp[, z] <- as.vector(P %*% cd@data[, z])
+set_zp <- function(cd, folds) {
+	folds <- make_folds(cd@data, folds)
+
+	permute <- function(cd, i) {
+		zp <- data.frame(matrix(NA, nrow = nrow(cd@data), ncol = length(cd@vars@Z)))
+		names(zp) <- cd@vars@Z
+		P <- linear_permutation(cd@data[i, c(cd@vars@A, cd@vars@W)])
+		for (z in cd@vars@Z) {
+			zp[i, z] <- as.vector(P %*% cd@data[i, z])
+		}
+		zp
 	}
-	zp
+
+	purrr::map(folds, \(x) permute(cd, x$validation_set)) |>
+		purrr::map(as.list) |>
+		revert_list() |>
+		purrr::map(\(x) purrr::reduce(x, data.table::fcoalesce)) |>
+		data.frame()
+}
+
+# https://stackoverflow.com/questions/15263146/revert-list-structure
+revert_list <- function(ls) { # @Josh O'Brien
+	# get sub-elements in same order
+	x <- lapply(ls, `[`, names(ls[[1]]))
+	# stack and reslice
+	apply(do.call(rbind, x), 2, as.list)
 }
