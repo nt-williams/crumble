@@ -9,7 +9,7 @@ crumble(
   trt,
   outcome,
   mediators,
-  moc,
+  moc = NULL,
   covar,
   cens = NULL,
   id = NULL,
@@ -31,8 +31,14 @@ A vector containing the column names of treatment variables.}
 \item{outcome}{[\code{character(1)}]\cr
 The column name of the outcome variable.}
 
+\item{mediators}{[\code{character}]\cr
+A vector containing the column names of the mediator variables.}
+
+\item{moc}{[\code{character}]\cr
+An optional vector containing the column names of the mediator-outcome confounders.}
+
 \item{covar}{[\code{character}]\cr
-An optional vector containing the column names of baseline covariates to be
+An vector containing the column names of baseline covariates to be
 controlled for.}
 
 \item{cens}{[\code{character(1)}]\cr
@@ -50,10 +56,21 @@ See examples for how to specify shift functions for continuous, binary, and cate
 A two argument function that specifies how treatment variables should be shifted.
 See examples for how to specify shift functions for continuous, binary, and categorical exposures.}
 
-\item{learners_regressions}{[\code{character}]\cr A vector of \code{mlr3superlearner} algorithms
-for estimation of the outcome regressions. Default is \code{"glm"}, a main effects GLM.}
+\item{control}{[\code{crumble_control}]\cr
+Control parameters for the estimation procedure. Use \code{crumble_control()} to set these values.}
 
-\item{control}{}
+\item{learners}{[\code{character}]\cr A vector of \code{mlr3superlearner} algorithms
+for estimation of the outcome regressions. Default is \code{"glm"}, a main effects GLM.}
+}
+\value{
+A \code{crumble} object containing the following components:
+\item{estimates}{A list of parameter estimates.}
+\item{outcome_reg}{Predictions from the outcome regressions.}
+\item{alpha_n}{A list of density ratio estimates.}
+\item{alpha_r}{A list of density ratio estimates.}
+\item{fits}{A list of the fitted values from the outcome regressions.}
+\item{call}{The matched call.}
+\item{natural}{A logical indicating if the natural direct effect is being estimated.}
 }
 \description{
 Mediation Analysis Using Modified Treatment Policies and Recanting Twins

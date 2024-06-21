@@ -22,20 +22,20 @@ License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Depends: 
-    data.table,
-    S7
+    R (>= 4.0.0)
 RoxygenNote: 7.3.1
 Imports: 
     checkmate,
     Matrix,
-    Rglpk,
     origami,
     torch,
     Rsymphony,
     doFuture,
     foreach,
     purrr,
-    cli
+    cli, 
+    S7, 
+    data.table
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

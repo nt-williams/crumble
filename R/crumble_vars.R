@@ -2,15 +2,15 @@
 #' @rawNamespace if (getRversion() < "4.3.0") importFrom("S7", "@")
 NULL
 
-crumble_vars <- new_class("crumble_vars",
+crumble_vars <- S7::new_class("crumble_vars",
   properties = list(
-    A = class_character,
-    Y = class_character,
-    M = class_character,
-    Z = class_character,
-    W = class_character,
-    C = new_property(class = class_character, default = NA_character_),
-    id = new_property(class = class_character, default = NA_character_)
+    A = S7::class_character,
+    Y = S7::class_character,
+    M = S7::class_character,
+    Z = S7::class_character,
+    W = S7::class_character,
+    C = S7::new_property(class = S7::class_character, default = NA_character_),
+    id = S7::new_property(class = S7::class_character, default = NA_character_)
   ),
   validator = function(self) {
     if (length(self@A) != 1) {

@@ -7,10 +7,12 @@
 #'  A vector containing the column names of treatment variables.
 #' @param outcome [\code{character(1)}]\cr
 #'  The column name of the outcome variable.
-#' @param mediators
-#' @param moc
+#' @param mediators [\code{character}]\cr
+#'	A vector containing the column names of the mediator variables.
+#' @param moc [\code{character}]\cr
+#'  An optional vector containing the column names of the mediator-outcome confounders.
 #' @param covar [\code{character}]\cr
-#'  An optional vector containing the column names of baseline covariates to be
+#'  An vector containing the column names of baseline covariates to be
 #'  controlled for.
 #' @param cens [\code{character(1)}]\cr
 #'  An optional vector of column name of a censoring indicator. Must be provided if
@@ -23,12 +25,21 @@
 #' @param d1 [\code{closure}\]\cr
 #'  A two argument function that specifies how treatment variables should be shifted.
 #'  See examples for how to specify shift functions for continuous, binary, and categorical exposures.
-#' @param learners_regressions [\code{character}]\cr A vector of \code{mlr3superlearner} algorithms
+#' @param learners [\code{character}]\cr A vector of \code{mlr3superlearner} algorithms
 #'  for estimation of the outcome regressions. Default is \code{"glm"}, a main effects GLM.
 #' @param nn_riesz_module
-#' @param control
+#' @param control [\code{crumble_control}]\cr
+#'  Control parameters for the estimation procedure. Use \code{crumble_control()} to set these values.
 #'
-#' @return
+#' @return A \code{crumble} object containing the following components:
+#' \item{estimates}{A list of parameter estimates.}
+#' \item{outcome_reg}{Predictions from the outcome regressions.}
+#' \item{alpha_n}{A list of density ratio estimates.}
+#' \item{alpha_r}{A list of density ratio estimates.}
+#' \item{fits}{A list of the fitted values from the outcome regressions.}
+#' \item{call}{The matched call.}
+#' \item{natural}{A logical indicating if the natural direct effect is being estimated.}
+#'
 #' @export
 #'
 #' @examples
