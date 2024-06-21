@@ -13,18 +13,21 @@ linear_permutation <- function(data) {
 set_zp <- function(cd, folds) {
 	folds <- make_folds(cd@data, folds)
 
+	AW <- one_hot_encode(cd@data, c(cd@vars@A, cd@vars@W))
+	Z <- cd@data[, cd@vars@Z, drop = FALSE]
+
 	cli::cli_progress_step("Permuting Z-prime variables...")
-	permute <- function(cd, i) {
-		zp <- data.frame(matrix(NA, nrow = nrow(cd@data), ncol = length(cd@vars@Z)))
-		names(zp) <- cd@vars@Z
-		P <- linear_permutation(cd@data[i, c(cd@vars@A, cd@vars@W)])
-		for (z in cd@vars@Z) {
-			zp[i, z] <- as.vector(P %*% cd@data[i, z])
+	permute <- function(i) {
+		zp <- data.frame(matrix(NA, nrow = nrow(AW), ncol = ncol(Z)))
+		names(zp) <- names(Z)
+		P <- linear_permutation(AW[i, ])
+		for (z in names(zp)) {
+			zp[i, z] <- as.vector(P %*% Z[i, z])
 		}
 		zp
 	}
 
-	purrr::map(folds, \(x) permute(cd, x$validation_set)) |>
+	purrr::map(folds, \(x) permute(x$validation_set)) |>
 		purrr::map(as.list) |>
 		revert_list() |>
 		purrr::map(\(x) purrr::reduce(x, data.table::fcoalesce)) |>

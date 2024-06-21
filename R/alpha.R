@@ -9,5 +9,6 @@ alpha_n <- function(train, valid, vars, architecture, .f, weights = NULL, contro
 		epochs = control@epochs
 	)
 
-	as.numeric(model(as_torch(valid[["data"]][, vars])))
+	list(train = as.numeric(model(as_torch(one_hot_encode(train[["data"]][, vars])))),
+			 valid = as.numeric(model(as_torch(one_hot_encode(valid[["data"]][, vars])))))
 }

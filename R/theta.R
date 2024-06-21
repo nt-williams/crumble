@@ -2,15 +2,14 @@ theta <- function(train, valid, vars, learners, control) {
 	continuous <- !is_binary(train$data[[vars@Y]])
 	valid <- valid[sapply(valid, \(x) ncol(x) > 0)]
 
-	theta_y <- crossfit(
-		train = train$data[, na.omit(c(vars@A, vars@W, vars@M, vars@Z, vars@Y))],
-		valid = valid,
-		y = vars@Y,
-		continuous = continuous,
-		id = NULL,
-		learners = learners,
+	theta_y <- mlr3superlearner::mlr3superlearner(
+		data = train$data[, na.omit(c(vars@A, vars@W, vars@M, vars@Z, vars@Y))],
+		target = vars@Y,
+		library = learners,
+		outcome_type = ifelse(continuous, "continuous", "binomial"),
 		folds = control@mlr3superlearner_folds,
-		bound = FALSE
+		newdata = valid,
+		group = NULL
 	)
 
 	# \theta_n ----------------------------------------------------------------
@@ -38,61 +37,58 @@ theta <- function(train, valid, vars, learners, control) {
 		l <- params[[s]]["l"]
 
 		if (!no_Z(vars)) {
-			b3 <- theta_y$preds[[j]]
+			b3_train <- predict(theta_y, train[[j]])
+			b3_valid <- theta_y$preds[[j]]
 		} else {
-			b2 <- theta_y$preds[[j]]
+			b2_train <- predict(theta_y, train[[j]])
+			b2_valid <- theta_y$preds[[j]]
 		}
 
 		if (!no_Z(vars)) {
-			theta2 <- crossfit(
-				train = add_psuedo(train$data[, c(vars@A, vars@W, vars@Z)], b3),
-				valid = valid,
-				y = "tmp_crumble_pseudo_y",
-				continuous = TRUE,
-				id = NULL,
-				learners = learners,
+			theta2 <- mlr3superlearner::mlr3superlearner(
+				data = add_psuedo(train$data[, c(vars@A, vars@W, vars@Z)], b3_train),
+				target = "tmp_crumble_pseudo_y",
+				library = learners,
+				outcome_type = "continuous",
 				folds = control@mlr3superlearner_folds,
-				bound = FALSE
+				newdata = valid,
+				group = NULL
 			)
 
-			b2 <- theta2$preds[[k]]
+			b2_train <- predict(theta2, train[[k]])
+			b2_valid <- theta2$preds[[k]]
 		}
 
-		theta1 <- crossfit(
-			train = add_psuedo(train$data[, c(vars@A, vars@W)], b2),
-			valid = valid,
-			y = "tmp_crumble_pseudo_y",
-			continuous = TRUE,
-			id = NULL,
-			learners = learners,
+		theta1 <- mlr3superlearner::mlr3superlearner(
+			data = add_psuedo(train$data[, c(vars@A, vars@W)], b2_train),
+			target = "tmp_crumble_pseudo_y",
+			library = learners,
+			outcome_type = "continuous",
 			folds = control@mlr3superlearner_folds,
-			bound = FALSE
+			newdata = valid,
+			group = NULL
 		)
 
 		if (!no_Z(vars)) {
-			b1 <- theta1$preds[[l]]
-
 			vals_n[[s]] <- list(
 				fit3_weights = theta_y$weights,
 				fit3_natural = theta_y$preds$data,
-				b3 = b3,
+				b3 = b3_valid,
 				fit2_weights = theta2$weights,
 				fit2_natural = theta2$preds$data,
-				b2 = b2,
+				b2 = b2_valid,
 				fit1_weights = theta1$weights,
 				fit1_natural = theta1$preds$data,
-				b1 = b1
+				b1 = theta1$preds[[l]]
 			)
 		} else {
-			b1 <- theta1$preds[[k]]
-
 			vals_n[[s]] <- list(
 				fit2_weights = theta_y$weights,
 				fit2_natural = theta_y$preds$data,
-				b2 = b2,
+				b2 = b2_valid,
 				fit1_weights = theta1$weights,
 				fit1_natural = theta1$preds$data,
-				b1 = b1
+				b1 = theta1$preds[[k]]
 			)
 		}
 	}
@@ -115,60 +111,58 @@ theta <- function(train, valid, vars, learners, control) {
 		k <- params[[s]]["k"]
 		l <- params[[s]]["l"]
 
-		b4 <- theta_y$preds[[i]]
+		b4_train <- predict(theta_y, train[[i]])
+		b4_valid <- theta_y$preds[[i]]
 
-		theta3 <- crossfit(
-			train = add_psuedo(train$data[, c(vars@A, vars@W, vars@M)], b4),
-			valid = valid,
-			y = "tmp_crumble_pseudo_y",
-			continuous = TRUE,
-			id = NULL,
-			learners = learners,
+		theta3 <- mlr3superlearner::mlr3superlearner(
+			data = add_psuedo(train$data[, c(vars@A, vars@W, vars@M)], b4_train),
+			target = "tmp_crumble_pseudo_y",
+			library = learners,
+			outcome_type = "continuous",
 			folds = control@mlr3superlearner_folds,
-			bound = FALSE
+			newdata = valid,
+			group = NULL
 		)
 
-		b3 <- theta3$preds[[j]]
+		b3_train <- predict(theta3, train[[j]])
+		b3_valid <- theta3$preds[[j]]
 
-		theta2 <- crossfit(
-			train = add_psuedo(train$data[, c(vars@A, vars@W, vars@Z)], b3),
-			valid = valid,
-			y = "tmp_crumble_pseudo_y",
-			continuous = TRUE,
-			id = NULL,
-			learners = learners,
+		theta2 <- mlr3superlearner::mlr3superlearner(
+			data = add_psuedo(train$data[, c(vars@A, vars@W, vars@Z)], b3_train),
+			target = "tmp_crumble_pseudo_y",
+			library = learners,
+			outcome_type = "continuous",
 			folds = control@mlr3superlearner_folds,
-			bound = FALSE
+			newdata = valid,
+			group = NULL
 		)
 
-		b2 <- theta2$preds[[k]]
+		b2_train <- predict(theta2, train[[k]])
+		b2_valid <- theta2$preds[[k]]
 
-		theta1 <- crossfit(
-			train = add_psuedo(train$data[, c(vars@A, vars@W)], b2),
-			valid = valid,
-			y = "tmp_crumble_pseudo_y",
-			continuous = TRUE,
-			id = NULL,
-			learners = learners,
+		theta1 <- mlr3superlearner::mlr3superlearner(
+			data = add_psuedo(train$data[, c(vars@A, vars@W)], b2_train),
+			target = "tmp_crumble_pseudo_y",
+			library = learners,
+			outcome_type = "continuous",
 			folds = control@mlr3superlearner_folds,
-			bound = FALSE
+			newdata = valid,
+			group = NULL
 		)
-
-		b1 <- theta1$preds[[l]]
 
 		vals_r[[s]] <- list(
 			fit4_weights = theta_y$weights,
 			fit4_natural = theta_y$preds$data,
-			b4 = b4,
+			b4 = b4_valid,
 			fit3_weights = theta3$weights,
 			fit3_natural = theta3$preds$data,
-			b3 = b3,
+			b3 = b3_valid,
 			fit2_weights = theta2$weights,
 			fit2_natural = theta2$preds$data,
-			b2 = b2,
+			b2 = b2_valid,
 			fit1_weights = theta1$weights,
 			fit1_natural = theta1$preds$data,
-			b1 = b1
+			b1 = theta1$preds[[l]]
 		)
 	}
 

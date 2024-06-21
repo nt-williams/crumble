@@ -15,34 +15,6 @@ calc_ci <- function(x, eif) {
 	x + c(-1, 1)*se*qnorm(0.975)
 }
 
-dist2 <- function(x, y) {
-	X_sq <- rowSums(x^2)
-	Y_sq <- rowSums(y^2)
-	outer(X_sq, Y_sq, "+") - 2 * tcrossprod(x, y)
-}
-
-rbf <- function(sigma) {
-	constant <- 1 / (2*(sigma^2))
-	\(x, y) exp(-constant*dist2(x, y))
-}
-
-rkhs_distance <- function(Z, kernel) {
-	# Compute the kernel matrix
-	K <- kernel(Z, Z)
-	# Create a column vector of ones
-	O <- matrix(1, nrow = nrow(Z), ncol = 1)
-	# Compute the N matrix
-	N <- O %*% diag(K)
-	# Compute the pairwise RKHS distances
-	sqrt(N + t(N) - 2 * K)
-}
-
-create_doubly_stochastic <- function(n) {
-	# Create an identity matrix
-	identity_mat <- diag(1, n)
-	identity_mat[sample(n), sample(n)]
-}
-
 shift_data <- function(data, trt, cens, shift) {
 	if (is.null(shift)) {
 		return(shift_cens(data, cens))
@@ -117,20 +89,19 @@ reduce_bind_reorder <- function(x, .f, name1, name2, i) {
 }
 
 recombine_theta <- function(x, folds) {
-	# x <- list(...)
 	ind <- Reduce(c, lapply(folds, function(x) x[["validation_set"]]))
 	.f <- function(x) {
-		ijkl <- names(x[[2]])
+		ijkl <- names(x[[1]])
 
-		b_names <- grep("^b", names(x[[2]][[1]]), value = TRUE)
+		b_names <- grep("^b", names(x[[1]][[1]]), value = TRUE)
 		bs <- lapply(b_names, \(param) sapply(ijkl, \(ijkl) reduce_bind_reorder(x, c, ijkl, param, ind)))
 		names(bs) <- b_names
 
-		natural_names <- grep("_natural$", names(x[[2]][[1]]), value = TRUE)
+		natural_names <- grep("_natural$", names(x[[1]][[1]]), value = TRUE)
 		natural <- lapply(natural_names, \(param) sapply(ijkl, \(ijkl) reduce_bind_reorder(x, c, ijkl, param, ind)))
 		names(natural) <- natural_names
 
-		weight_names <- grep("_weights$", names(x[[2]][[1]]), value = TRUE)
+		weight_names <- grep("_weights$", names(x[[1]][[1]]), value = TRUE)
 		weights <- setNames(
 			lapply(weight_names, function(fit) {
 				setNames(lapply(ijkl, \(ijkl) lapply(lapply(x, \(y) y[[ijkl]]), \(z) z[[fit]])),
@@ -149,10 +120,9 @@ recombine_theta <- function(x, folds) {
 }
 
 recombine_alpha <- function(x, folds) {
-	# x <- list(...)
 	ind <- Reduce(c, lapply(folds, function(x) x[["validation_set"]]))
-	ijkl <- names(x[[2]])
-	alpha_names <- grep("^alpha", names(x[[2]][[1]]), value = TRUE)
+	ijkl <- names(x[[1]])
+	alpha_names <- grep("^alpha", names(x[[1]][[1]]), value = TRUE)
 	setNames(
 		lapply(alpha_names,
 					 \(param) sapply(ijkl,
@@ -164,9 +134,9 @@ recombine_alpha <- function(x, folds) {
 calc_estimates <- function(eif_ns, eif_rs = NULL) {
 	if (is.null(eif_rs)) {
 		return(calc_estimates_natural(eif_ns))
-	} else {
-		return(calc_estimates_rt(eif_ns, eif_rs))
 	}
+
+	calc_estimates_rt(eif_ns, eif_rs)
 }
 
 calc_estimates_natural <- function(eif_ns) {
@@ -216,4 +186,9 @@ no_Z <- function(vars) any(is.na(vars@Z))
 simplify_weights <- function(weights) {
 	purrr::map_depth(weights, 3, \(x) data.frame(as.list(x))) |>
 		purrr::map_depth(2, dplyr::bind_rows)
+}
+
+one_hot_encode <- function(data, vars) {
+	tmp <- data[, vars, drop = FALSE]
+	as.data.frame(model.matrix(~ ., data = tmp))[, -1, drop = FALSE]
 }

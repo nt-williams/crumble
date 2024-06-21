@@ -1,7 +1,7 @@
 #' @importFrom checkmate `%??%`
 nn_sequential_riesz_representer <- function(train, vars, architecture, .f, weights = NULL,
 																						learning_rate = 1e-3, epochs = 500) {
-	data <- as_torch(train$data[, vars])
+	data <- as_torch(one_hot_encode(train$data[, vars]))
 	model <- architecture(data)
 
 	weights <- weights %??% 1

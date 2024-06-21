@@ -101,7 +101,7 @@ crumble <- function(data,
 		valid <- validation(cd, folds, i)
 
 		theta(train, valid, cd@vars, learners_regressions, control)
-	}
+														 }
 
 	thetas <- recombine_theta(thetas, folds)
 

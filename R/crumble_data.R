@@ -10,6 +10,13 @@ crumble_data <- S7::new_class("crumble_data",
 		# Don't need data_1zp
 	),
 	constructor = function(data, vars, d0, d1) {
+		if (!no_Z(vars)) {
+			z_ohe <- one_hot_encode(data, vars@Z)
+			vars@Z <- names(z_ohe)
+			data <- data[, !(names(data) %in% vars@Z)]
+			data <- cbind(data, z_ohe)
+		}
+
 		S7::new_object(S7::S7_object(),
 									 data = data,
 									 vars = vars,
