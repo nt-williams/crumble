@@ -22,12 +22,13 @@
 #' @param d0 [\code{closure}]\cr
 #'  A two argument function that specifies how treatment variables should be shifted.
 #'  See examples for how to specify shift functions for continuous, binary, and categorical exposures.
-#' @param d1 [\code{closure}\]\cr
+#' @param d1 [\code{closure}]\cr
 #'  A two argument function that specifies how treatment variables should be shifted.
 #'  See examples for how to specify shift functions for continuous, binary, and categorical exposures.
-#' @param learners [\code{character}]\cr A vector of \code{mlr3superlearner} algorithms
+#' @param learners [\code{character}]\cr
+#'  A vector of \code{mlr3superlearner} algorithms
 #'  for estimation of the outcome regressions. Default is \code{"glm"}, a main effects GLM.
-#' @param nn_riesz_module
+#' @param nn_module
 #' @param control [\code{crumble_control}]\cr
 #'  Control parameters for the estimation procedure. Use \code{crumble_control()} to set these values.
 #'
@@ -54,7 +55,7 @@ crumble <- function(data,
 										d0 = NULL,
 										d1 = NULL,
 										learners_regressions = "glm",
-										nn_riesz_module = nn_sequential_architecture,
+										nn_module = sequential_module(),
 										control = crumble_control()) {
 
 	# Perform initial checks
@@ -62,7 +63,7 @@ crumble <- function(data,
 	assert_not_missing(data, trt, covar, mediators, moc)
 	checkmate::assert_function(d0, nargs = 2, null.ok = TRUE)
 	checkmate::assert_function(d1, nargs = 2, null.ok = TRUE)
-	checkmate::assert_function(nn_riesz_module)
+	checkmate::assert_function(nn_module)
 
 	call <- match.call()
 
@@ -90,60 +91,70 @@ crumble <- function(data,
 
 	# Create folds for cross fitting
 	folds <- make_folds(cd@data, control@crossfit_folds)
+	thetas <- alpha_rs <- alpha_ns <- vector("list", control@crossfit_folds)
 
-	cli::cli_progress_step("Fitting outcome regressions...")
 	# Estimate \theta nuisance parameters
-	thetas <- foreach::foreach(i = 1:control@crossfit_folds,
-														 .options.future = list(seed = TRUE)) %dofuture% {
+	i <- 1
+	cli::cli_progress_step("Fitting outcome regressions... {i}/{control@crossfit_folds} folds")
+	for (i in seq_along(thetas)) {
 		# Training
 		train <- training(cd, folds, i)
 		# Validation
 		valid <- validation(cd, folds, i)
 
-		theta(train, valid, cd@vars, learners_regressions, control)
-														 }
+		thetas[[i]] <- theta(train, valid, cd@vars, learners_regressions, control)
+		cli::cli_progress_update()
+	}
 
+	cli::cli_progress_done()
 	thetas <- recombine_theta(thetas, folds)
 
-	cli::cli_progress_step("Computing alpha n density ratios...")
-	alpha_ns <- foreach::foreach(i = 1:control@crossfit_folds) %dofuture% {
+	i <- 1
+	cli::cli_progress_step("Computing alpha n density ratios... {i}/{control@crossfit_folds} folds")
+	for (i in seq_along(folds)) {
 		# Training
 		train <- training(cd, folds, i)
 		# Validation
 		valid <- validation(cd, folds, i)
 
 		if (!is.null(moc)) {
-			list(
-				"000" = phi_n_alpha(train, valid, cd@vars, nn_riesz_module, "data_0", "data_0", "data_0", control),
-				"111" = phi_n_alpha(train, valid, cd@vars, nn_riesz_module, "data_1", "data_1", "data_1", control),
-				"011" = phi_n_alpha(train, valid, cd@vars, nn_riesz_module, "data_0", "data_1", "data_1", control),
-				"010" = phi_n_alpha(train, valid, cd@vars, nn_riesz_module, "data_0", "data_1", "data_0", control)
+			alpha_ns[[i]] <- list(
+				"000" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_0", "data_0", "data_0", control),
+				"111" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_1", "data_1", "data_1", control),
+				"011" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_0", "data_1", "data_1", control),
+				"010" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_0", "data_1", "data_0", control)
 			)
 		} else {
 			# The values of l are arbitrary in this case
-			list(
-				"00" = phi_n_alpha(train, valid, cd@vars, nn_riesz_module, "data_0", "data_0", "data_0", control),
-				"11" = phi_n_alpha(train, valid, cd@vars, nn_riesz_module, "data_1", "data_1", "data_1", control),
-				"01" = phi_n_alpha(train, valid, cd@vars, nn_riesz_module, "data_0", "data_1", "data_1", control)
+			alpha_ns[[i]] <- list(
+				"00" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_0", "data_0", "data_0", control),
+				"11" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_1", "data_1", "data_1", control),
+				"01" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_0", "data_1", "data_1", control)
 			)
 		}
+
+		cli::cli_progress_update()
 	}
 
+	cli::cli_progress_done()
 	alpha_ns <- recombine_alpha(alpha_ns, folds)
 
 	if (!is.null(moc)) {
-		cli::cli_progress_step("Computing alpha r density ratios...")
-		alpha_rs <- foreach::foreach(i = 1:control@crossfit_folds) %dofuture% {
+		i <- 1
+		cli::cli_progress_step("Computing alpha r density ratios... {i}/{control@crossfit_folds} folds")
+		for (i in seq_along(folds)) {
 			# Training
 			train <- training(cd, folds, i)
 			# Validation
 			valid <- validation(cd, folds, i)
 
-			list(
-				"0111" = phi_r_alpha(train, valid, cd@vars, nn_riesz_module, "data_0zp", "data_1", "data_1", "data_1", control),
-				"0011" = phi_r_alpha(train, valid, cd@vars, nn_riesz_module, "data_0zp", "data_0", "data_1", "data_1", control),
-				"0010" = phi_r_alpha(train, valid, cd@vars, nn_riesz_module, "data_0zp", "data_0", "data_1", "data_0", control)
+			alpha_rs[[i]] <- list(
+				"0111" = phi_r_alpha(train, valid, cd@vars, nn_module, "data_0zp", "data_1", "data_1", "data_1", control),
+				"0011" = phi_r_alpha(train, valid, cd@vars, nn_module, "data_0zp", "data_0", "data_1", "data_1", control),
+				"0010" = phi_r_alpha(train, valid, cd@vars, nn_module, "data_0zp", "data_0", "data_1", "data_0", control)
 			)
+
+			cli::cli_progress_update()
 		}
 
 		alpha_rs <- recombine_alpha(alpha_rs, folds)

@@ -16,7 +16,7 @@ crumble(
   d0 = NULL,
   d1 = NULL,
   learners_regressions = "glm",
-  nn_riesz_module = nn_sequential_architecture,
+  nn_module = sequential_module(),
   control = crumble_control()
 )
 }
@@ -52,14 +52,15 @@ An optional column name containing cluster level identifiers.}
 A two argument function that specifies how treatment variables should be shifted.
 See examples for how to specify shift functions for continuous, binary, and categorical exposures.}
 
-\item{d1}{[\code{closure}\]\cr
+\item{d1}{[\code{closure}]\cr
 A two argument function that specifies how treatment variables should be shifted.
 See examples for how to specify shift functions for continuous, binary, and categorical exposures.}
 
 \item{control}{[\code{crumble_control}]\cr
 Control parameters for the estimation procedure. Use \code{crumble_control()} to set these values.}
 
-\item{learners}{[\code{character}]\cr A vector of \code{mlr3superlearner} algorithms
+\item{learners}{[\code{character}]\cr
+A vector of \code{mlr3superlearner} algorithms
 for estimation of the outcome regressions. Default is \code{"glm"}, a main effects GLM.}
 }
 \value{

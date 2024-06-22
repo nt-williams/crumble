@@ -30,8 +30,6 @@ Imports:
     origami,
     torch,
     Rsymphony,
-    doFuture,
-    foreach,
     purrr,
     cli, 
     S7, 

@@ -2,7 +2,9 @@
 
 S3method(print,crumble)
 export(crumble)
-export(nn_sequential_architecture)
+export(sequential_module)
 if (getRversion() < "4.3.0") importFrom("S7", "@")
 importFrom(checkmate,`%??%`)
 importFrom(doFuture,`%dofuture%`)
+importFrom(lmtp,static_binary_off)
+importFrom(lmtp,static_binary_on)

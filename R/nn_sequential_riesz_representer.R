@@ -12,13 +12,14 @@ nn_sequential_riesz_representer <- function(train, vars, architecture, .f, weigh
 		weight_decay = 0.01
 	)
 
-	scheduler <- torch::lr_one_cycle(optimizer,
-																	 max_lr = learning_rate,
-																	 total_steps = epochs)
+	scheduler <- torch::lr_one_cycle(
+		optimizer,
+		max_lr = learning_rate,
+		total_steps = epochs
+	)
 
 	p <- progressr::progressor(steps = epochs)
 
-	# TODO: Wrap this in a progress bar
 	for (epoch in 1:epochs) {
 		# Regression loss
 		loss <- (model(data)$pow(2) - (2 * weights * .f(model, train)))$mean(dtype = torch::torch_float())
