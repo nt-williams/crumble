@@ -1,6 +1,5 @@
 #' Title
 #'
-#' @param data
 #' @param layers
 #' @param hidden
 #' @param dropout
