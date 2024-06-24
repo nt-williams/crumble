@@ -2,6 +2,7 @@
 
 S3method(print,crumble)
 export(crumble)
+export(crumble_control)
 export(sequential_module)
 if (getRversion() < "4.3.0") importFrom("S7", "@")
 importFrom(checkmate,`%??%`)

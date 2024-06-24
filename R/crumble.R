@@ -86,16 +86,16 @@ crumble <- function(data,
 	# Create permuted Z
 	if (!is.null(moc)) {
 		cd@data_0zp <- cd@data_0
-		cd@data_0zp[, cd@vars@Z] <- set_zp(cd, control@zprime_folds)
+		cd@data_0zp[, cd@vars@Z] <- set_zp(cd, control$zprime_folds)
 	}
 
 	# Create folds for cross fitting
-	folds <- make_folds(cd@data, control@crossfit_folds)
-	thetas <- alpha_rs <- alpha_ns <- vector("list", control@crossfit_folds)
+	folds <- make_folds(cd@data, control$crossfit_folds)
+	thetas <- alpha_rs <- alpha_ns <- vector("list", control$crossfit_folds)
 
 	# Estimate \theta nuisance parameters
 	i <- 1
-	cli::cli_progress_step("Fitting outcome regressions... {i}/{control@crossfit_folds} folds")
+	cli::cli_progress_step("Fitting outcome regressions... {i}/{control$crossfit_folds} folds")
 	for (i in seq_along(thetas)) {
 		# Training
 		train <- training(cd, folds, i)
@@ -110,7 +110,7 @@ crumble <- function(data,
 	thetas <- recombine_theta(thetas, folds)
 
 	i <- 1
-	cli::cli_progress_step("Computing alpha n density ratios... {i}/{control@crossfit_folds} folds")
+	cli::cli_progress_step("Computing alpha n density ratios... {i}/{control$crossfit_folds} folds")
 	for (i in seq_along(folds)) {
 		# Training
 		train <- training(cd, folds, i)
@@ -141,7 +141,7 @@ crumble <- function(data,
 
 	if (!is.null(moc)) {
 		i <- 1
-		cli::cli_progress_step("Computing alpha r density ratios... {i}/{control@crossfit_folds} folds")
+		cli::cli_progress_step("Computing alpha r density ratios... {i}/{control$crossfit_folds} folds")
 		for (i in seq_along(folds)) {
 			# Training
 			train <- training(cd, folds, i)
