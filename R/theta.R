@@ -1,13 +1,14 @@
 theta <- function(train, valid, vars, learners, control) {
 	continuous <- !is_binary(train$data[[vars@Y]])
 	valid <- valid[sapply(valid, \(x) ncol(x) > 0)]
+	obs <- censored(train$data, vars@C)
 
 	theta_y <- mlr3superlearner::mlr3superlearner(
-		data = train$data[, na.omit(c(vars@A, vars@W, vars@M, vars@Z, vars@Y))],
+		data = train$data[obs, na.omit(c(vars@A, vars@W, vars@M, vars@Z, vars@Y))],
 		target = vars@Y,
 		library = learners,
 		outcome_type = ifelse(continuous, "continuous", "binomial"),
-		folds = control@mlr3superlearner_folds,
+		folds = control$mlr3superlearner_folds,
 		newdata = valid,
 		group = NULL
 	)
@@ -50,7 +51,7 @@ theta <- function(train, valid, vars, learners, control) {
 				target = "tmp_crumble_pseudo_y",
 				library = learners,
 				outcome_type = "continuous",
-				folds = control@mlr3superlearner_folds,
+				folds = control$mlr3superlearner_folds,
 				newdata = valid,
 				group = NULL
 			)
@@ -64,7 +65,7 @@ theta <- function(train, valid, vars, learners, control) {
 			target = "tmp_crumble_pseudo_y",
 			library = learners,
 			outcome_type = "continuous",
-			folds = control@mlr3superlearner_folds,
+			folds = control$mlr3superlearner_folds,
 			newdata = valid,
 			group = NULL
 		)
@@ -119,7 +120,7 @@ theta <- function(train, valid, vars, learners, control) {
 			target = "tmp_crumble_pseudo_y",
 			library = learners,
 			outcome_type = "continuous",
-			folds = control@mlr3superlearner_folds,
+			folds = control$mlr3superlearner_folds,
 			newdata = valid,
 			group = NULL
 		)
@@ -132,7 +133,7 @@ theta <- function(train, valid, vars, learners, control) {
 			target = "tmp_crumble_pseudo_y",
 			library = learners,
 			outcome_type = "continuous",
-			folds = control@mlr3superlearner_folds,
+			folds = control$mlr3superlearner_folds,
 			newdata = valid,
 			group = NULL
 		)
@@ -145,7 +146,7 @@ theta <- function(train, valid, vars, learners, control) {
 			target = "tmp_crumble_pseudo_y",
 			library = learners,
 			outcome_type = "continuous",
-			folds = control@mlr3superlearner_folds,
+			folds = control$mlr3superlearner_folds,
 			newdata = valid,
 			group = NULL
 		)
