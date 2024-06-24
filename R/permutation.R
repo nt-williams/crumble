@@ -16,7 +16,6 @@ set_zp <- function(cd, folds) {
 	AW <- one_hot_encode(cd@data, c(cd@vars@A, cd@vars@W))
 	Z <- cd@data[, cd@vars@Z, drop = FALSE]
 
-	cli::cli_progress_step("Permuting Z-prime variables...")
 	permute <- function(i) {
 		zp <- data.frame(matrix(NA, nrow = nrow(AW), ncol = ncol(Z)))
 		names(zp) <- names(Z)
@@ -27,9 +26,17 @@ set_zp <- function(cd, folds) {
 		zp
 	}
 
-	purrr::map(folds, \(x) permute(x$validation_set)) |>
-		purrr::map(as.list) |>
-		revert_list() |>
+	permuted <- vector("list", length(folds))
+	i <- 1
+	cli::cli_progress_step("Permuting Z-prime variables... {i}/{length(folds)} tasks")
+	for (i in seq_along(folds)) {
+		permuted[[i]] <- permute(folds[[i]]$validation_set) |>
+			as.list()
+		cli::cli_progress_update()
+	}
+
+	cli::cli_progress_done()
+	revert_list(permuted) |>
 		purrr::map(\(x) purrr::reduce(x, data.table::fcoalesce)) |>
 		data.frame()
 }
