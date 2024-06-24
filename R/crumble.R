@@ -1,4 +1,4 @@
-#' Mediation Analysis Using Modified Treatment Policies and Recanting Twins
+#' Mediation analysis using modified treatment policies and recanting twins
 #'
 #' @param data [\code{data.frame}]\cr
 #'  A \code{data.frame} in wide format containing all necessary variables
@@ -43,7 +43,7 @@
 #'
 #' @export
 #'
-#' @examples
+#' @example inst/examples/examples.R
 crumble <- function(data,
 										trt,
 										outcome,

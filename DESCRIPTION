@@ -1,6 +1,6 @@
 Package: crumble
 Type: Package
-Title: Crumble Causal Effects
+Title: Mediation Analysis Using Modified Treatment Policies, Recanting Twins, and Riesz Representers
 Version: 0.1.0
 Authors@R: 
     c(person(given = "Nicholas",
