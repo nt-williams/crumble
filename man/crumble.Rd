@@ -56,6 +56,8 @@ See examples for how to specify shift functions for continuous, binary, and cate
 A two argument function that specifies how treatment variables should be shifted.
 See examples for how to specify shift functions for continuous, binary, and categorical exposures.}
 
+\item{nn_module}{[\code{function}]\cr A function that returns a neural network module.}
+
 \item{control}{[\code{crumble_control}]\cr
 Control parameters for the estimation procedure. Use \code{crumble_control()} to set these values.}
 

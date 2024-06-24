@@ -1,4 +1,4 @@
-#' Crumble Control Parameters
+#' Crumble control parameters
 #'
 #' @param crossfit_folds [\code{numeric(1)}]\cr The number of crossfit folds.
 #' @param mlr3superlearner_folds [\code{numeric(1)}]\cr The number of `mlr3superlearner` folds.

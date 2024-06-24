@@ -28,7 +28,7 @@
 #' @param learners [\code{character}]\cr
 #'  A vector of \code{mlr3superlearner} algorithms
 #'  for estimation of the outcome regressions. Default is \code{"glm"}, a main effects GLM.
-#' @param nn_module
+#' @param nn_module [\code{function}]\cr A function that returns a neural network module.
 #' @param control [\code{crumble_control}]\cr
 #'  Control parameters for the estimation procedure. Use \code{crumble_control()} to set these values.
 #'

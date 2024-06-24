@@ -1,13 +1,14 @@
-#' Title
+#' Sequential neural network module function factory
 #'
-#' @param layers
-#' @param hidden
-#' @param dropout
+#' @param layers [numeric(1)]\cr Number of hidden layers.
+#' @param hidden [numeric(1)]\cr Number of hidden units.
+#' @param dropout [numeric(1)]\cr Dropout rate.
 #'
-#' @return
+#' @return A function that returns a sequential neural network module.
 #' @export
 #'
 #' @examples
+#' sequential_module()
 sequential_module <- function(layers = 1, hidden = 20, dropout = 0.1) {
 	function(data) {
 		# input dimensionality

@@ -2,7 +2,7 @@
 % Please edit documentation in R/crumble_control.R
 \name{crumble_control}
 \alias{crumble_control}
-\title{Crumble Control Parameters}
+\title{Crumble control parameters}
 \usage{
 crumble_control(
   crossfit_folds = 10L,
@@ -28,7 +28,7 @@ With larger sample sizes, a larger number will increase speed.}
 A list of control parameters
 }
 \description{
-Crumble Control Parameters
+Crumble control parameters
 }
 \examples{
 crumble_control(crossfit_folds = 5)

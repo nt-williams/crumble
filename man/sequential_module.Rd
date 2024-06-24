@@ -2,13 +2,23 @@
 % Please edit documentation in R/sequential_module.R
 \name{sequential_module}
 \alias{sequential_module}
-\title{Title}
+\title{Sequential neural network module function factory}
 \usage{
 sequential_module(layers = 1, hidden = 20, dropout = 0.1)
 }
 \arguments{
-\item{dropout}{}
+\item{layers}{[numeric(1)]\cr Number of hidden layers.}
+
+\item{hidden}{[numeric(1)]\cr Number of hidden units.}
+
+\item{dropout}{[numeric(1)]\cr Dropout rate.}
+}
+\value{
+A function that returns a sequential neural network module.
 }
 \description{
-Title
+Sequential neural network module function factory
+}
+\examples{
+sequential_module()
 }
