@@ -54,7 +54,7 @@ crumble(
 #>                                                 
 #> ══ Results `crumble()`═══════════════════════════════════════════════
 #> 
-#> ── Comparitive Treatment Effect |-> d1 - d0 
+#> ── E[Y(d1) - Y(d0)] 
 #>       Estimate: 1.0453
 #>     Std. error: 0.2312
 #>         95% CI: (0.5922, 1.4985)
