@@ -14,8 +14,8 @@ gendata <- function(n = 1e3) {
 }
 
 gendata2 <- function(n = 1e3) {
-	lambda1 = 0.8
-	lambda2 = 0.6
+	lambda1 = 0
+	lambda2 = 0
 	gamma1 = 0.6
 	gamma2 = 0.4
 

@@ -11,7 +11,7 @@ crumble(
   mediators,
   moc = NULL,
   covar,
-  cens = NULL,
+  obs = NULL,
   id = NULL,
   d0 = NULL,
   d1 = NULL,
@@ -41,9 +41,9 @@ An optional vector containing the column names of the mediator-outcome confounde
 An vector containing the column names of baseline covariates to be
 controlled for.}
 
-\item{cens}{[\code{character(1)}]\cr
-An optional vector of column name of a censoring indicator. Must be provided if
-there is missingness in the outcome.}
+\item{obs}{[\code{character(1)}]\cr
+An optional column name (with values coded as 0 or 1) for whether or not the \code{outcome} is observed.
+Must be provided if there is missingness in the outcome! Default is \code{NULL}.}
 
 \item{id}{[\code{character(1)}]\cr
 An optional column name containing cluster level identifiers.}

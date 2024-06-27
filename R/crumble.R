@@ -14,9 +14,9 @@
 #' @param covar [\code{character}]\cr
 #'  An vector containing the column names of baseline covariates to be
 #'  controlled for.
-#' @param cens [\code{character(1)}]\cr
-#'  An optional vector of column name of a censoring indicator. Must be provided if
-#'  there is missingness in the outcome.
+#' @param obs [\code{character(1)}]\cr
+#'  An optional column name (with values coded as 0 or 1) for whether or not the \code{outcome} is observed.
+#'  Must be provided if there is missingness in the outcome! Default is \code{NULL}.
 #' @param id [\code{character(1)}]\cr
 #'  An optional column name containing cluster level identifiers.
 #' @param d0 [\code{closure}]\cr
@@ -50,7 +50,7 @@ crumble <- function(data,
 										mediators,
 										moc = NULL,
 										covar,
-										cens = NULL,
+										obs = NULL,
 										id = NULL,
 										d0 = NULL,
 										d1 = NULL,
@@ -59,11 +59,12 @@ crumble <- function(data,
 										control = crumble_control()) {
 
 	# Perform initial checks
-	checkmate::assert_data_frame(data[, c(trt, outcome, mediators, moc, covar, cens, id)])
-	assert_not_missing(data, trt, covar, mediators, moc)
+	checkmate::assert_data_frame(data[, c(trt, outcome, mediators, moc, covar, obs, id)])
+	assert_not_missing(data, trt, covar, mediators, moc, obs)
 	checkmate::assert_function(d0, nargs = 2, null.ok = TRUE)
 	checkmate::assert_function(d1, nargs = 2, null.ok = TRUE)
 	checkmate::assert_function(nn_module)
+	assert_binary_0_1(data[[obs]])
 
 	call <- match.call()
 
@@ -76,7 +77,7 @@ crumble <- function(data,
 			M = mediators,
 			Z = moc %??% NA_character_,
 			W = covar,
-			C = cens %??% NA_character_,
+			C = obs %??% NA_character_,
 			id = id %??% NA_character_
 		),
 		d0 = d0,

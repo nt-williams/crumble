@@ -1,8 +1,8 @@
-check_for_missing <- function(data, A, W, M, Z) {
-	check <- data[, c(A, W, M, Z), drop = FALSE]
+check_for_missing <- function(data, A, W, M, Z, C) {
+	check <- data[, c(A, W, M, Z, C), drop = FALSE]
 
 	if (any(is.na(check))) {
-		return("Missing data found in treatment/covariate/mediator nodes")
+		return("Missing data found in treatment/covariate/mediator/observed nodes")
 	}
 
 	TRUE
