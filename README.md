@@ -22,7 +22,9 @@ v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/li
 remotes::install_github("nt-williams/crumble")
 ```
 
-### Example
+### Example(s)
+
+##### No intermediate confounding
 
 ``` r
 library(crumble)
@@ -32,6 +34,44 @@ data(weight_behavior, package = "mma")
 
 weight_behavior <- na.omit(weight_behavior)
 
+set.seed(2345)
+
+crumble(
+    data = weight_behavior,
+    trt = "sports", 
+    outcome = "bmi",
+    covar = c("age", "sex", "tvhours"),
+    mediators = c("exercises", "overweigh"),
+    d0 = \(data, trt) factor(rep(1, nrow(data)), levels = c("1", "2")), 
+    d1 = \(data, trt) factor(rep(2, nrow(data)), levels = c("1", "2")), 
+    learners = c("mean", "glm", "earth", "ranger"), 
+    nn_module = sequential_module(),
+    control = crumble_control(crossfit_folds = 1L)
+)
+#> ✔ Fitting outcome regressions... 1/1 folds [4.6s]                      
+#> ✔ Computing alpha n density ratios... 1/1 folds [4.3s]      
+#>    
+#> ══ Results `crumble()` ════════════════════════════════════════════════
+#> 
+#> ── E[Y(d1) - Y(d0)]  
+#>       Estimate: 1.0458
+#>     Std. error: 0.3016
+#>         95% CI: (0.4546, 1.637)
+#> 
+#> ── Path: A -> Y 
+#>       Estimate: 0.0209
+#>     Std. error: 0.1871
+#>         95% CI: (-0.3457, 0.3875)
+#> 
+#> ── Path: A -> M -> Y 
+#>       Estimate: 1.0249
+#>     Std. error: 0.238
+#>         95% CI: (0.5585, 1.4914)
+```
+
+##### With intermediate confounding
+
+``` r
 set.seed(453675476)
 
 crumble(
