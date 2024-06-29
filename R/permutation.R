@@ -37,7 +37,7 @@ set_zp <- function(cd, folds) {
 
 	cli::cli_progress_done()
 	revert_list(permuted) |>
-		purrr::map(\(x) purrr::reduce(x, data.table::fcoalesce)) |>
+		lapply(\(x) Reduce(data.table::fcoalesce, x)) |>
 		data.frame()
 }
 
