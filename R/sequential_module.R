@@ -10,10 +10,7 @@
 #' @examples
 #' sequential_module()
 sequential_module <- function(layers = 1, hidden = 20, dropout = 0.1) {
-	function(data) {
-		# input dimensionality
-		d_in <- ncol(data)
-		# output dimensionality
+	function(d_in) {
 		d_out <- 1
 
 		middle_layers <- lapply(1:layers, \(x) torch::nn_sequential(torch::nn_linear(hidden, hidden), torch::nn_elu()))

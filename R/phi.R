@@ -1,11 +1,11 @@
 phi_n_alpha <- function(train, valid, vars, architecture, j, k, l, control) {
 	if (!no_Z(vars)) {
-		.f1 <- \(alpha, data) alpha(as_torch(one_hot_encode(data[[l]][, na.omit(c(vars@A, vars@W))])))
-		.f2 <- \(alpha, data) alpha(as_torch(one_hot_encode(data[[k]][, na.omit(c(vars@A, vars@Z, vars@W))])))
-		.f3 <- \(alpha, data) alpha(as_torch(one_hot_encode(data[[j]][, na.omit(c(vars@A, vars@C, vars@M, vars@Z, vars@W))])))
+		.f1 <- \(alpha, dl) alpha(dl[[l]])
+		.f2 <- \(alpha, dl) alpha(dl[[k]])
+		.f3 <- \(alpha, dl) alpha(dl[[j]])
 	} else {
-		.f1 <- \(alpha, data) alpha(as_torch(one_hot_encode(data[[k]][, na.omit(c(vars@A, vars@W))])))
-		.f3 <- \(alpha, data) alpha(as_torch(one_hot_encode(data[[j]][, na.omit(c(vars@A, vars@C, vars@M, vars@W))])))
+		.f1 <- \(alpha, dl) alpha(dl[[k]])
+		.f3 <- \(alpha, dl) alpha(dl[[j]])
 	}
 
 	alpha1 <- alpha_n(
@@ -16,7 +16,7 @@ phi_n_alpha <- function(train, valid, vars, architecture, j, k, l, control) {
 		.f = .f1,
 		weights = NULL,
 		control = control
-		)
+	)
 
 	if (!no_Z(vars)) {
 		alpha2 <- alpha_n(
@@ -55,10 +55,10 @@ phi_n_alpha <- function(train, valid, vars, architecture, j, k, l, control) {
 }
 
 phi_r_alpha <- function(train, valid, vars, architecture, i, j, k, l, control) {
-	.f1 <- \(alpha, data) alpha(as_torch(one_hot_encode(data[[l]][, na.omit(c(vars@A, vars@W))])))
-	.f2 <- \(alpha, data) alpha(as_torch(one_hot_encode(data[[k]][, na.omit(c(vars@A, vars@Z, vars@W))])))
-	.f3 <- \(alpha, data) alpha(as_torch(one_hot_encode(data[[j]][, na.omit(c(vars@A, vars@M, vars@W))])))
-	.f4 <- \(alpha, data) alpha(as_torch(one_hot_encode(data[[i]][, na.omit(c(vars@A, vars@C, vars@Z, vars@M, vars@W))])))
+	.f1 <- \(alpha, data) alpha(data[[l]])
+	.f2 <- \(alpha, data) alpha(data[[k]])
+	.f3 <- \(alpha, data) alpha(data[[j]])
+	.f4 <- \(alpha, data) alpha(data[[i]])
 
 	alpha1 <- alpha_n(
 		train = train,

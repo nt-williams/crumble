@@ -58,6 +58,8 @@ crumble <- function(data,
 										nn_module = sequential_module(),
 										control = crumble_control()) {
 
+	# check for character vector and error out that they need to be made into factors
+
 	# Perform initial checks
 	checkmate::assert_data_frame(data[, c(trt, outcome, mediators, moc, covar, obs, id)])
 	assert_not_missing(data, trt, covar, mediators, moc, obs)

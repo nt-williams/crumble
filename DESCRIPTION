@@ -31,9 +31,10 @@ Imports:
     torch,
     Rsymphony,
     purrr,
-    cli, 
-    S7, 
-    data.table
+    cli,
+    S7,
+    data.table,
+    coro
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
