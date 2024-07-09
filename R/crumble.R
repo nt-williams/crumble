@@ -69,8 +69,16 @@ crumble <- function(data,
 	checkmate::assert_function(d1, nargs = 2, null.ok = TRUE)
 	checkmate::assert_function(nn_module)
 	if (!is.null(obs)) assert_binary_0_1(data[[obs]])
+	assert_effect_type(moc, effect)
 
 	call <- match.call()
+
+	params <- switch(match.arg(effect),
+									 N = natural,
+									 O = organic,
+									 D = decision,
+									 RT = recanting_twin,
+									 RI = randomized)
 
 	# Create crumble_data object
 	cd <- crumble_data(
@@ -97,13 +105,6 @@ crumble <- function(data,
 	# Create folds for cross fitting
 	folds <- make_folds(cd@data, control$crossfit_folds)
 	thetas <- alpha_rs <- alpha_ns <- vector("list", control$crossfit_folds)
-
-	params <- switch(match.arg(effect),
-									 N = natural,
-									 O = organic,
-									 D = decision,
-									 RT = recanting_twin,
-									 RI = randomized)
 
 	# Estimate \theta nuisance parameters
 	i <- 1
