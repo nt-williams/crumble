@@ -98,6 +98,13 @@ crumble <- function(data,
 	folds <- make_folds(cd@data, control$crossfit_folds)
 	thetas <- alpha_rs <- alpha_ns <- vector("list", control$crossfit_folds)
 
+	params <- switch(match.arg(effect),
+									 N = natural,
+									 O = organic,
+									 D = decision,
+									 RT = recanting_twin,
+									 RI = randomized)
+
 	# Estimate \theta nuisance parameters
 	i <- 1
 	cli::cli_progress_step("Fitting outcome regressions... {i}/{control$crossfit_folds} folds")
@@ -107,7 +114,7 @@ crumble <- function(data,
 		# Validation
 		valid <- validation(cd, folds, i)
 
-		thetas[[i]] <- theta(train, valid, cd@vars, learners_regressions, control)
+		thetas[[i]] <- theta(train, valid, cd@vars, params, learners_regressions, control)
 		cli::cli_progress_update()
 	}
 
@@ -122,21 +129,12 @@ crumble <- function(data,
 		# Validation
 		valid <- validation(cd, folds, i)
 
-		if (!is.null(moc)) {
-			alpha_ns[[i]] <- list(
-				"000" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_0", "data_0", "data_0", control),
-				"111" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_1", "data_1", "data_1", control),
-				"011" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_0", "data_1", "data_1", control),
-				"010" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_0", "data_1", "data_0", control)
-			)
-		} else {
-			# The values of l are arbitrary in this case
-			alpha_ns[[i]] <- list(
-				"00" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_0", "data_0", "data_0", control),
-				"11" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_1", "data_1", "data_1", control),
-				"01" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_0", "data_1", "data_1", control)
-			)
-		}
+		alpha_ns[[i]] <- lapply(
+			params$natural,
+			\(param) phi_n_alpha(train, valid, cd@vars, nn_module, param, control)
+		)
+
+		names(alpha_ns[[i]]) <- unlist(lapply(params$natural, \(x) paste0(gsub("data_", "", x), collapse = "")))
 
 		cli::cli_progress_update()
 	}
@@ -144,7 +142,7 @@ crumble <- function(data,
 	cli::cli_progress_done()
 	alpha_ns <- recombine_alpha(alpha_ns, folds)
 
-	if (!is.null(moc)) {
+	if (length(params$randomized) != 0) {
 		i <- 1
 		cli::cli_progress_step("Computing alpha r density ratios... {i}/{control$crossfit_folds} folds")
 		for (i in seq_along(folds)) {
@@ -153,24 +151,25 @@ crumble <- function(data,
 			# Validation
 			valid <- validation(cd, folds, i)
 
-			alpha_rs[[i]] <- list(
-				"0111" = phi_r_alpha(train, valid, cd@vars, nn_module, "data_0zp", "data_1", "data_1", "data_1", control),
-				"0011" = phi_r_alpha(train, valid, cd@vars, nn_module, "data_0zp", "data_0", "data_1", "data_1", control),
-				"0010" = phi_r_alpha(train, valid, cd@vars, nn_module, "data_0zp", "data_0", "data_1", "data_0", control)
+			alpha_rs[[i]] <- lapply(
+				params$randomized,
+				\(param) phi_r_alpha(train, valid, cd@vars, nn_module, param, control)
 			)
+
+			names(alpha_rs[[i]]) <-
+				gsub("zp", "", unlist(lapply(params$randomized, \(x) paste0(gsub("data_", "", x), collapse = ""))))
 
 			cli::cli_progress_update()
 		}
 
 		alpha_rs <- recombine_alpha(alpha_rs, folds)
-
-		eif_ns <- sapply(c("000", "111", "011", "010"), \(jkl) eif_n(cd, thetas$theta_n, alpha_ns, jkl))
-		eif_rs <- sapply(c("0111", "0011", "0010"), \(ijkl) eif_r(cd, thetas$theta_r, alpha_rs, ijkl))
+		eif_rs <- sapply(colnames(alpha_rs[[1]]), \(ijkl) eif_r(cd, thetas$theta_r, alpha_rs, ijkl))
 	} else {
-		eif_ns <- sapply(c("00", "11", "01"), \(jk) eif_natural(cd, thetas$theta_n, alpha_ns, jk))
-		eif_rs <- NULL
 		alpha_rs <- NULL
+		eif_rs <- NULL
 	}
+
+	eif_ns <- sapply(colnames(alpha_ns[[1]]), \(jkl) eif_n(cd, thetas$theta_n, alpha_ns, jkl))
 
 	# Estimates ---------------------------------------------------------------
 
