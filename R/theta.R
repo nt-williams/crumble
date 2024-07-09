@@ -15,55 +15,57 @@ theta <- function(train, valid, vars, params, learners, control) {
 
 	# Natural -----------------------------------------------------------------
 
-	vals_n <- vector("list", length = length(params$natural))
-	names(vals_n) <- unlist(lapply(params$natural, \(x) paste0(gsub("data_", "", x), collapse = "")))
+	if (length(params$natural) != 0) {
+		vals_n <- vector("list", length = length(params$natural))
+		names(vals_n) <- unlist(lapply(params$natural, \(x) paste0(gsub("data_", "", x), collapse = "")))
 
-	for (s in seq_along(params$natural)) {
-		j <- params$natural[[s]]["j"]
-		k <- params$natural[[s]]["k"]
-		l <- params$natural[[s]]["l"]
+		for (s in seq_along(params$natural)) {
+			j <- params$natural[[s]]["j"]
+			k <- params$natural[[s]]["k"]
+			l <- params$natural[[s]]["l"]
 
-		b3_train <- predict(theta_y, train[[j]])
-		b3_valid <- theta_y$preds[[j]]
+			b3_train <- predict(theta_y, train[[j]])
+			b3_valid <- theta_y$preds[[j]]
 
-		theta2 <- mlr3superlearner::mlr3superlearner(
-			data = add_psuedo(train$data[, na.omit(c(vars@A, vars@W, vars@Z))], b3_train),
-			target = "tmp_crumble_pseudo_y",
-			library = learners,
-			outcome_type = "continuous",
-			folds = control$mlr3superlearner_folds,
-			newdata = valid,
-			group = NULL
-		)
+			theta2 <- mlr3superlearner::mlr3superlearner(
+				data = add_psuedo(train$data[, na.omit(c(vars@A, vars@W, vars@Z))], b3_train),
+				target = "tmp_crumble_pseudo_y",
+				library = learners,
+				outcome_type = "continuous",
+				folds = control$mlr3superlearner_folds,
+				newdata = valid,
+				group = NULL
+			)
 
-		b2_train <- predict(theta2, train[[k]])
-		b2_valid <- theta2$preds[[k]]
+			b2_train <- predict(theta2, train[[k]])
+			b2_valid <- theta2$preds[[k]]
 
-		theta1 <- mlr3superlearner::mlr3superlearner(
-			data = add_psuedo(train$data[, c(vars@A, vars@W)], b2_train),
-			target = "tmp_crumble_pseudo_y",
-			library = learners,
-			outcome_type = "continuous",
-			folds = control$mlr3superlearner_folds,
-			newdata = valid,
-			group = NULL
-		)
+			theta1 <- mlr3superlearner::mlr3superlearner(
+				data = add_psuedo(train$data[, c(vars@A, vars@W)], b2_train),
+				target = "tmp_crumble_pseudo_y",
+				library = learners,
+				outcome_type = "continuous",
+				folds = control$mlr3superlearner_folds,
+				newdata = valid,
+				group = NULL
+			)
 
-		vals_n[[s]] <- list(
-			fit3_weights = theta_y$weights,
-			fit3_natural = theta_y$preds$data,
-			b3 = b3_valid,
-			fit2_weights = theta2$weights,
-			fit2_natural = theta2$preds$data,
-			b2 = b2_valid,
-			fit1_weights = theta1$weights,
-			fit1_natural = theta1$preds$data,
-			b1 = theta1$preds[[l]]
-		)
-	}
+			vals_n[[s]] <- list(
+				fit3_weights = theta_y$weights,
+				fit3_natural = theta_y$preds$data,
+				b3 = b3_valid,
+				fit2_weights = theta2$weights,
+				fit2_natural = theta2$preds$data,
+				b2 = b2_valid,
+				fit1_weights = theta1$weights,
+				fit1_natural = theta1$preds$data,
+				b1 = theta1$preds[[l]]
+			)
+		}
 
-	if (length(params$randomized) == 0) {
-		return(list(n = vals_n))
+		if (length(params$randomized) == 0) {
+			return(list(n = vals_n))
+		}
 	}
 
 	# Randomized --------------------------------------------------------------
@@ -132,6 +134,10 @@ theta <- function(train, valid, vars, params, learners, control) {
 
 	names(vals_r) <-
 		gsub("zp", "", unlist(lapply(params$randomized, \(x) paste0(gsub("data_", "", x), collapse = ""))))
+
+	if (length(params$natural) == 0) {
+		return(list(r = vals_r))
+	}
 
 	list(n = vals_n,
 			 r = vals_r)

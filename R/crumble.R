@@ -98,8 +98,11 @@ crumble <- function(data,
 
 	# Create permuted Z
 	if (!is.null(moc)) {
+		zp <- set_zp(cd, control$zprime_folds)
 		cd@data_0zp <- cd@data_0
-		cd@data_0zp[, cd@vars@Z] <- set_zp(cd, control$zprime_folds)
+		cd@data_1zp <- cd@data_1
+		cd@data_0zp[, cd@vars@Z] <- zp
+		cd@data_1zp[, cd@vars@Z] <- zp
 	}
 
 	# Create folds for cross fitting
@@ -122,26 +125,32 @@ crumble <- function(data,
 	cli::cli_progress_done()
 	thetas <- recombine_theta(thetas, folds)
 
-	i <- 1
-	cli::cli_progress_step("Computing alpha n density ratios... {i}/{control$crossfit_folds} folds")
-	for (i in seq_along(folds)) {
-		# Training
-		train <- training(cd, folds, i)
-		# Validation
-		valid <- validation(cd, folds, i)
+	if (length(params$natural) != 0) {
+		i <- 1
+		cli::cli_progress_step("Computing alpha n density ratios... {i}/{control$crossfit_folds} folds")
+		for (i in seq_along(folds)) {
+			# Training
+			train <- training(cd, folds, i)
+			# Validation
+			valid <- validation(cd, folds, i)
 
-		alpha_ns[[i]] <- lapply(
-			params$natural,
-			\(param) phi_n_alpha(train, valid, cd@vars, nn_module, param, control)
-		)
+			alpha_ns[[i]] <- lapply(
+				params$natural,
+				\(param) phi_n_alpha(train, valid, cd@vars, nn_module, param, control)
+			)
 
-		names(alpha_ns[[i]]) <- unlist(lapply(params$natural, \(x) paste0(gsub("data_", "", x), collapse = "")))
+			names(alpha_ns[[i]]) <- unlist(lapply(params$natural, \(x) paste0(gsub("data_", "", x), collapse = "")))
 
-		cli::cli_progress_update()
+			cli::cli_progress_update()
+		}
+
+		cli::cli_progress_done()
+		alpha_ns <- recombine_alpha(alpha_ns, folds)
+		eif_ns <- sapply(colnames(alpha_ns[[1]]), \(jkl) eif_n(cd, thetas$theta_n, alpha_ns, jkl))
+	} else {
+		alpha_ns <- NULL
+		eif_ns <- NULL
 	}
-
-	cli::cli_progress_done()
-	alpha_ns <- recombine_alpha(alpha_ns, folds)
 
 	if (length(params$randomized) != 0) {
 		i <- 1
@@ -162,7 +171,6 @@ crumble <- function(data,
 
 			cli::cli_progress_update()
 		}
-
 		alpha_rs <- recombine_alpha(alpha_rs, folds)
 		eif_rs <- sapply(colnames(alpha_rs[[1]]), \(ijkl) eif_r(cd, thetas$theta_r, alpha_rs, ijkl))
 	} else {
@@ -170,18 +178,21 @@ crumble <- function(data,
 		eif_rs <- NULL
 	}
 
-	eif_ns <- sapply(colnames(alpha_ns[[1]]), \(jkl) eif_n(cd, thetas$theta_n, alpha_ns, jkl))
-
 	# Estimates ---------------------------------------------------------------
 
 	out <- list(
-		estimates = calc_estimates(eif_ns, eif_rs),
+		estimates = switch(match.arg(effect),
+											 N = calc_estimates_natural(eif_ns),
+											 O = calc_estimates_organic(eif_ns),
+											 RT = calc_estimates_rt(eif_ns, eif_rs),
+											 RI = calc_estimates_ri(eif_rs)),
 		outcome_reg = thetas,
 		alpha_n = alpha_ns,
 		alpha_r = alpha_rs,
 		fits = list(theta_n = thetas$theta_n$weights,
 								theta_r = thetas$theta_r$weights),
 		call = call,
+		effect = match.arg(effect),
 		natural = is.null(moc)
 	)
 
