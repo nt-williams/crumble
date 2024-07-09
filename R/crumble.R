@@ -25,6 +25,7 @@
 #' @param d1 [\code{closure}]\cr
 #'  A two argument function that specifies how treatment variables should be shifted.
 #'  See examples for how to specify shift functions for continuous, binary, and categorical exposures.
+#' @param effect [\code{character}]\cr
 #' @param learners [\code{character}]\cr
 #'  A vector of \code{mlr3superlearner} algorithms
 #'  for estimation of the outcome regressions. Default is \code{"glm"}, a main effects GLM.
@@ -54,6 +55,7 @@ crumble <- function(data,
 										id = NULL,
 										d0 = NULL,
 										d1 = NULL,
+										effect = c("RT", "N", "RI", "O", "D"),
 										learners_regressions = "glm",
 										nn_module = sequential_module(),
 										control = crumble_control()) {
