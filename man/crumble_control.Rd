@@ -10,7 +10,8 @@ crumble_control(
   zprime_folds = 1L,
   epochs = 100L,
   learning_rate = 0.01,
-  batch_size = 64
+  batch_size = 64,
+  device = c("cpu", "cuda", "mps")
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ With larger sample sizes, a larger number will increase speed.}
 \item{learning_rate}{[\code{numeric(1)}]\cr The learning rate for the neural network.}
 
 \item{batch_size}{[\code{numeric(1)}]\cr The batch size for mini-batch gradient descent.}
+
+\item{device}{[\code{character(1)}]\cr Object representing the device on which a \code{torch_tensor} is or will be allocated.}
 }
 \value{
 A list of control parameters

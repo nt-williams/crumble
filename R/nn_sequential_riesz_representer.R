@@ -5,11 +5,13 @@ nn_sequential_riesz_representer <- function(train,
 																						.f,
 																						weights = NULL,
 																						batch_size,
-																						learning_rate = 1e-3,
-																						epochs = 500) {
-	dataset <- make_dataset(train, vars)
+																						learning_rate,
+																						epochs,
+																						device) {
+	dataset <- make_dataset(train, vars, device = device)
 	train_dl <- torch::dataloader(dataset, batch_size = batch_size)
 	model <- architecture(ncol(dataset$data))
+	model$to(device = device)
 
 	weights <- weights %??% 1
 

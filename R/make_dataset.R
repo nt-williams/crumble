@@ -1,13 +1,12 @@
-make_dataset <- function(data, x) {
+make_dataset <- function(data, x, device) {
 	dataset <- torch::dataset(
 		name = "tmp_crumble_dataset",
-		initialize = function(data, x) {
+		initialize = function(data, x, device) {
 			for (df in names(data)) {
 				if (ncol(data[[df]]) > 0) {
 					df_x <- data[[df]][, x, drop = FALSE]
 					self[[df]] <- one_hot_encode(df_x) |>
-						as.matrix() |>
-						torch::torch_tensor()
+						as_torch(device = device)
 				}
 			}
 		},
@@ -19,5 +18,5 @@ make_dataset <- function(data, x) {
 			self$data$size()[1]
 		}
 	)
-	dataset(data, x)
+	dataset(data, x, device)
 }

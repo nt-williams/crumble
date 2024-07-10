@@ -1,8 +1,4 @@
-alpha_n <- function(train, valid, vars, architecture, .f, weights = NULL, control) {
-	# dataset <- make_dataset(train, vars)
-	# browser()
-	# It would be more efficient to just do dataset creation here on the whole data,
-	# and then make the splits
+Alpha <- function(train, valid, vars, architecture, .f, weights = NULL, control) {
 	model <- nn_sequential_riesz_representer(
 		train = train,
 		vars = vars,
@@ -11,9 +7,26 @@ alpha_n <- function(train, valid, vars, architecture, .f, weights = NULL, contro
 		weights = weights,
 		batch_size = control$batch_size,
 		learning_rate = control$learning_rate,
-		epochs = control$epochs
+		epochs = control$epochs,
+		device = control$device
 	)
 
-	list(train = as.numeric(model(as_torch(one_hot_encode(train[["data"]][, vars])))),
-			 valid = as.numeric(model(as_torch(one_hot_encode(valid[["data"]][, vars])))))
+	list(
+		train = as.numeric(
+			model(
+				as_torch(
+					one_hot_encode(train[["data"]][, vars]),
+					device = control$device
+				)
+			)
+		),
+		valid = as.numeric(
+			model(
+				as_torch(
+					one_hot_encode(valid[["data"]][, vars]),
+					device = control$device
+				)
+			)
+		)
+	)
 }
