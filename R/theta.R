@@ -1,3 +1,17 @@
+estimate_theta <- function(cd, thetas, folds, params, learners_regressions, control) {
+	thetas <- vector("list", control$crossfit_folds)
+	i <- 1
+	cli::cli_progress_step("Fitting outcome regressions... {i}/{control$crossfit_folds} folds")
+	for (i in seq_along(thetas)) {
+		train <- training(cd, folds, i)
+		valid <- validation(cd, folds, i)
+		thetas[[i]] <- theta(train, valid, cd@vars, params, learners_regressions, control)
+		cli::cli_progress_update()
+	}
+	cli::cli_progress_done()
+	recombine_theta(thetas, folds)
+}
+
 theta <- function(train, valid, vars, params, learners, control) {
 	continuous <- !is_binary(train$data[[vars@Y]])
 	valid <- valid[sapply(valid, \(x) ncol(x) > 0)]

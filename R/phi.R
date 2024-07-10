@@ -1,3 +1,27 @@
+estimate_phi_n_alpha <- function(cd, folds, params, nn_module, control) {
+	if (length(params$natural) != 0) {
+		alpha_ns <- vector("list", control$crossfit_folds)
+		i <- 1
+		cli::cli_progress_step("Computing alpha n density ratios... {i}/{control$crossfit_folds} folds")
+		for (i in seq_along(folds)) {
+			train <- training(cd, folds, i)
+			valid <- validation(cd, folds, i)
+
+			alpha_ns[[i]] <- lapply(
+				params$natural,
+				\(param) phi_n_alpha(train, valid, cd@vars, nn_module, param, control)
+			)
+
+			names(alpha_ns[[i]]) <- unlist(lapply(params$natural, \(x) paste0(gsub("data_", "", x), collapse = "")))
+			cli::cli_progress_update()
+		}
+
+		cli::cli_progress_done()
+		return(recombine_alpha(alpha_ns, folds))
+	}
+	NULL
+}
+
 phi_n_alpha <- function(train, valid, vars, architecture, params, control) {
 	j <- params[1]
 	k <- params[2]
@@ -41,6 +65,30 @@ phi_n_alpha <- function(train, valid, vars, architecture, params, control) {
 			 alpha1 = alpha1$valid,
 			 alpha2 = alpha2$valid,
 			 alpha3 = alpha3$valid)
+}
+
+estimate_phi_r_alpha <- function(cd, folds, params, nn_module, control) {
+	if (length(params$randomized) != 0) {
+		alpha_rs <- vector("list", control$crossfit_folds)
+		i <- 1
+		cli::cli_progress_step("Computing alpha r density ratios... {i}/{control$crossfit_folds} folds")
+		for (i in seq_along(folds)) {
+			train <- training(cd, folds, i)
+			valid <- validation(cd, folds, i)
+
+			alpha_rs[[i]] <- lapply(
+				params$randomized,
+				\(param) phi_r_alpha(train, valid, cd@vars, nn_module, param, control)
+			)
+
+			names(alpha_rs[[i]]) <-
+				gsub("zp", "", unlist(lapply(params$randomized, \(x) paste0(gsub("data_", "", x), collapse = ""))))
+
+			cli::cli_progress_update()
+		}
+		return(recombine_alpha(alpha_rs, folds))
+	}
+	NULL
 }
 
 phi_r_alpha <- function(train, valid, vars, architecture, params, control) {

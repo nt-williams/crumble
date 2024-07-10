@@ -76,8 +76,6 @@ crumble <- function(data,
 	if (!is.null(obs)) assert_binary_0_1(data[[obs]])
 	assert_effect_type(moc, match.arg(effect))
 
-	call <- match.call()
-
 	params <- switch(match.arg(effect),
 									 N = natural,
 									 O = organic,
@@ -106,74 +104,23 @@ crumble <- function(data,
 
 	# Create folds for cross fitting
 	folds <- make_folds(cd@data, control$crossfit_folds)
-	thetas <- alpha_rs <- alpha_ns <- vector("list", control$crossfit_folds)
 
 	# Estimate \theta nuisance parameters
-	i <- 1
-	cli::cli_progress_step("Fitting outcome regressions... {i}/{control$crossfit_folds} folds")
-	for (i in seq_along(thetas)) {
-		# Training
-		train <- training(cd, folds, i)
-		# Validation
-		valid <- validation(cd, folds, i)
+	thetas <- estimate_theta(cd, thetas, folds, params, learners_regressions, control)
 
-		thetas[[i]] <- theta(train, valid, cd@vars, params, learners_regressions, control)
-		cli::cli_progress_update()
-	}
-
-	cli::cli_progress_done()
-	thetas <- recombine_theta(thetas, folds)
-
-	if (length(params$natural) != 0) {
-		i <- 1
-		cli::cli_progress_step("Computing alpha n density ratios... {i}/{control$crossfit_folds} folds")
-		for (i in seq_along(folds)) {
-			# Training
-			train <- training(cd, folds, i)
-			# Validation
-			valid <- validation(cd, folds, i)
-
-			alpha_ns[[i]] <- lapply(
-				params$natural,
-				\(param) phi_n_alpha(train, valid, cd@vars, nn_module, param, control)
-			)
-
-			names(alpha_ns[[i]]) <- unlist(lapply(params$natural, \(x) paste0(gsub("data_", "", x), collapse = "")))
-
-			cli::cli_progress_update()
-		}
-
-		cli::cli_progress_done()
-		alpha_ns <- recombine_alpha(alpha_ns, folds)
+	# Estimate density ratios, alpha natural
+	alpha_ns <- estimate_phi_n_alpha(cd, folds, params, nn_module, control)
+	if (!is.null(alpha_ns)) {
 		eif_ns <- sapply(colnames(alpha_ns[[1]]), \(jkl) eif_n(cd, thetas$theta_n, alpha_ns, jkl))
 	} else {
-		alpha_ns <- NULL
 		eif_ns <- NULL
 	}
 
-	if (length(params$randomized) != 0) {
-		i <- 1
-		cli::cli_progress_step("Computing alpha r density ratios... {i}/{control$crossfit_folds} folds")
-		for (i in seq_along(folds)) {
-			# Training
-			train <- training(cd, folds, i)
-			# Validation
-			valid <- validation(cd, folds, i)
-
-			alpha_rs[[i]] <- lapply(
-				params$randomized,
-				\(param) phi_r_alpha(train, valid, cd@vars, nn_module, param, control)
-			)
-
-			names(alpha_rs[[i]]) <-
-				gsub("zp", "", unlist(lapply(params$randomized, \(x) paste0(gsub("data_", "", x), collapse = ""))))
-
-			cli::cli_progress_update()
-		}
-		alpha_rs <- recombine_alpha(alpha_rs, folds)
+  # Estimate density ratios, alpha randomized
+	alpha_rs <- estimate_phi_r_alpha(cd, folds, params, nn_module, control)
+	if (!is.null(alpha_rs)) {
 		eif_rs <- sapply(colnames(alpha_rs[[1]]), \(ijkl) eif_r(cd, thetas$theta_r, alpha_rs, ijkl))
 	} else {
-		alpha_rs <- NULL
 		eif_rs <- NULL
 	}
 
@@ -190,7 +137,7 @@ crumble <- function(data,
 		alpha_r = alpha_rs,
 		fits = list(theta_n = thetas$theta_n$weights,
 								theta_r = thetas$theta_r$weights),
-		call = call,
+		call = match.call(),
 		effect = match.arg(effect)
 	)
 
