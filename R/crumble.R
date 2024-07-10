@@ -102,13 +102,7 @@ crumble <- function(data,
 	)
 
 	# Create permuted Z
-	if (!is.null(moc)) {
-		zp <- set_zp(cd, control$zprime_folds)
-		cd@data_0zp <- cd@data_0
-		cd@data_1zp <- cd@data_1
-		cd@data_0zp[, cd@vars@Z] <- zp
-		cd@data_1zp[, cd@vars@Z] <- zp
-	}
+	cd <- add_zp(cd, moc, control)
 
 	# Create folds for cross fitting
 	folds <- make_folds(cd@data, control$crossfit_folds)
