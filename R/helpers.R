@@ -131,8 +131,6 @@ recombine_alpha <- function(x, folds) {
 	)
 }
 
-no_Z <- function(vars) any(is.na(vars@Z))
-
 simplify_weights <- function(weights) {
 	purrr::map_depth(weights, 3, \(x) data.frame(as.list(x))) |>
 		purrr::map_depth(2, dplyr::bind_rows)
