@@ -6,7 +6,7 @@
 #'	With larger sample sizes, a larger number will increase speed.
 #' @param epochs [\code{numeric(1)}]\cr The number of epochs to train the neural network.
 #' @param learning_rate [\code{numeric(1)}]\cr The learning rate for the neural network.
-#' @param batch_size [\code{numeric(1)}]\cr The batch size for the neural network.
+#' @param batch_size [\code{numeric(1)}]\cr The batch size for mini-batch gradient descent.
 #'
 #' @return A list of control parameters
 #' @export

@@ -25,7 +25,12 @@
 #' @param d1 [\code{closure}]\cr
 #'  A two argument function that specifies how treatment variables should be shifted.
 #'  See examples for how to specify shift functions for continuous, binary, and categorical exposures.
-#' @param effect [\code{character}]\cr
+#' @param effect [\code{character(1)}]\cr
+#'  The type of effect to estimate. Options are \code{"RT"} for recanting twins,
+#'  \code{"N"} for natural effects, \code{"RI"} for randomized interventional effects,
+#'  and \code{"O"} for organic effects.
+#'  If \code{"RT"} or \code{"RI"} is selected, \code{moc} must be provided.
+#'  If \code{"N"} or \code{"O"} is selected, \code{moc} must be \code{NULL}.
 #' @param learners [\code{character}]\cr
 #'  A vector of \code{mlr3superlearner} algorithms
 #'  for estimation of the outcome regressions. Default is \code{"glm"}, a main effects GLM.
@@ -40,7 +45,7 @@
 #' \item{alpha_r}{A list of density ratio estimates.}
 #' \item{fits}{A list of the fitted values from the outcome regressions.}
 #' \item{call}{The matched call.}
-#' \item{natural}{A logical indicating if the natural direct effect is being estimated.}
+#' \item{effect}{The estimated effect type.}
 #'
 #' @export
 #'
@@ -55,7 +60,7 @@ crumble <- function(data,
 										id = NULL,
 										d0 = NULL,
 										d1 = NULL,
-										effect = c("RT", "N", "RI", "O", "D"),
+										effect = c("RT", "N", "RI", "O"),
 										learners_regressions = "glm",
 										nn_module = sequential_module(),
 										control = crumble_control()) {
@@ -192,8 +197,7 @@ crumble <- function(data,
 		fits = list(theta_n = thetas$theta_n$weights,
 								theta_r = thetas$theta_r$weights),
 		call = call,
-		effect = match.arg(effect),
-		natural = is.null(moc)
+		effect = match.arg(effect)
 	)
 
 	class(out) <- "crumble"
