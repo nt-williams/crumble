@@ -15,32 +15,6 @@ calc_ci <- function(x, eif) {
 	x + c(-1, 1)*se*qnorm(0.975)
 }
 
-shift_data <- function(data, trt, cens, shift) {
-	if (is.null(shift)) {
-		return(shift_cens(data, cens))
-	}
-	shift_trt(shift_cens(data, cens), trt, shift)
-}
-
-shift_cens <- function(data, cens) {
-	if (is.na(cens)) {
-		return(data)
-	}
-
-	out <- as.list(data)
-	for (ce in cens) {
-		out[[ce]] <- 1
-	}
-	as.data.frame(out, check.names = FALSE)
-}
-
-shift_trt <- function(data, trt, .f) {
-	for (a in trt) {
-		data[[a]] <- .f(data, a)
-	}
-	data
-}
-
 make_folds <- function(data, V) {
 	folds <- origami::make_folds(data, V = V)
 	if (V == 1) {
@@ -49,8 +23,8 @@ make_folds <- function(data, V) {
 	folds
 }
 
-as_torch <- function(data) {
-	torch::torch_tensor(as.matrix(data), dtype = torch::torch_float())
+as_torch <- function(data, device) {
+	torch::torch_tensor(as.matrix(data), dtype = torch::torch_float(), device = device)
 }
 
 censored <- function(data, cens) {
@@ -133,10 +107,12 @@ recombine_alpha <- function(x, folds) {
 
 simplify_weights <- function(weights) {
 	purrr::map_depth(weights, 3, \(x) data.frame(as.list(x))) |>
-		purrr::map_depth(2, dplyr::bind_rows)
+		purrr::map_depth(2, \(x) do.call(rbind, x))
 }
 
 one_hot_encode <- function(data, vars) {
 	tmp <- data[, vars, drop = FALSE]
 	as.data.frame(model.matrix(~ ., data = tmp))[, -1, drop = FALSE]
 }
+
+no_Z <- function(vars) any(is.na(vars@Z))

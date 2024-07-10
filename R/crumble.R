@@ -74,7 +74,7 @@ crumble <- function(data,
 	checkmate::assert_function(d1, nargs = 2, null.ok = TRUE)
 	checkmate::assert_function(nn_module)
 	if (!is.null(obs)) assert_binary_0_1(data[[obs]])
-	assert_effect_type(moc, effect)
+	assert_effect_type(moc, match.arg(effect))
 
 	call <- match.call()
 

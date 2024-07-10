@@ -7,7 +7,7 @@ phi_n_alpha <- function(train, valid, vars, architecture, params, control) {
 	.f2 <- \(alpha, dl) alpha(dl[[k]])
 	.f3 <- \(alpha, dl) alpha(dl[[j]])
 
-	alpha1 <- alpha_n(
+	alpha1 <- Alpha(
 		train = train,
 		valid = valid,
 		vars = na.omit(c(vars@A, vars@W)),
@@ -17,7 +17,7 @@ phi_n_alpha <- function(train, valid, vars, architecture, params, control) {
 		control = control
 	)
 
-	alpha2 <- alpha_n(
+	alpha2 <- Alpha(
 		train = train,
 		valid = valid,
 		vars = na.omit(c(vars@A, vars@Z, vars@W)),
@@ -27,7 +27,7 @@ phi_n_alpha <- function(train, valid, vars, architecture, params, control) {
 		control = control
 	)
 
-	alpha3 <- alpha_n(
+	alpha3 <- Alpha(
 		train = train,
 		valid = valid,
 		vars = na.omit(c(vars@A, vars@C, vars@M, vars@Z, vars@W)),
@@ -55,7 +55,7 @@ phi_r_alpha <- function(train, valid, vars, architecture, params, control) {
 	.f3 <- \(alpha, data) alpha(data[[j]])
 	.f4 <- \(alpha, data) alpha(data[[i]])
 
-	alpha1 <- alpha_n(
+	alpha1 <- Alpha(
 		train = train,
 		valid = valid,
 		vars = na.omit(c(vars@A, vars@W)),
@@ -65,7 +65,7 @@ phi_r_alpha <- function(train, valid, vars, architecture, params, control) {
 		control = control
 	)
 
-	alpha2 <- alpha_n(
+	alpha2 <- Alpha(
 		train = train,
 		valid = valid,
 		vars = na.omit(c(vars@A, vars@Z, vars@W)),
@@ -75,7 +75,7 @@ phi_r_alpha <- function(train, valid, vars, architecture, params, control) {
 		control = control
 	)
 
-	alpha3 <- alpha_n(
+	alpha3 <- Alpha(
 		train = train,
 		valid = valid,
 		vars = na.omit(c(vars@A, vars@M, vars@W)),
@@ -85,7 +85,7 @@ phi_r_alpha <- function(train, valid, vars, architecture, params, control) {
 		control = control
 	)
 
-	alpha4 <- alpha_n(
+	alpha4 <- Alpha(
 		train = train,
 		valid = valid,
 		vars = na.omit(c(vars@A, vars@C, vars@Z, vars@M, vars@W)),

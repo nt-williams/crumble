@@ -13,9 +13,7 @@ crumble_vars <- S7::new_class("crumble_vars",
     id = S7::new_property(class = S7::class_character, default = NA_character_)
   ),
   validator = function(self) {
-    if (length(self@A) != 1) {
-      "self@trt must be length 1"
-    } else if (length(self@Y) != 1) {
+     if (length(self@Y) != 1) {
       "self@outcome must be length 1"
     } else if (length(self@C) != 1) {
     	"self@cens must be length 1"
