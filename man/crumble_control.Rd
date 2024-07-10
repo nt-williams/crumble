@@ -9,7 +9,8 @@ crumble_control(
   mlr3superlearner_folds = 10L,
   zprime_folds = 1L,
   epochs = 100L,
-  learning_rate = 0.01
+  learning_rate = 0.01,
+  batch_size = 64
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ With larger sample sizes, a larger number will increase speed.}
 \item{epochs}{[\code{numeric(1)}]\cr The number of epochs to train the neural network.}
 
 \item{learning_rate}{[\code{numeric(1)}]\cr The learning rate for the neural network.}
+
+\item{batch_size}{[\code{numeric(1)}]\cr The batch size for mini-batch gradient descent.}
 }
 \value{
 A list of control parameters

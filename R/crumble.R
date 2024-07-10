@@ -25,6 +25,12 @@
 #' @param d1 [\code{closure}]\cr
 #'  A two argument function that specifies how treatment variables should be shifted.
 #'  See examples for how to specify shift functions for continuous, binary, and categorical exposures.
+#' @param effect [\code{character(1)}]\cr
+#'  The type of effect to estimate. Options are \code{"RT"} for recanting twins,
+#'  \code{"N"} for natural effects, \code{"RI"} for randomized interventional effects,
+#'  and \code{"O"} for organic effects.
+#'  If \code{"RT"} or \code{"RI"} is selected, \code{moc} must be provided.
+#'  If \code{"N"} or \code{"O"} is selected, \code{moc} must be \code{NULL}.
 #' @param learners [\code{character}]\cr
 #'  A vector of \code{mlr3superlearner} algorithms
 #'  for estimation of the outcome regressions. Default is \code{"glm"}, a main effects GLM.
@@ -39,7 +45,7 @@
 #' \item{alpha_r}{A list of density ratio estimates.}
 #' \item{fits}{A list of the fitted values from the outcome regressions.}
 #' \item{call}{The matched call.}
-#' \item{natural}{A logical indicating if the natural direct effect is being estimated.}
+#' \item{effect}{The estimated effect type.}
 #'
 #' @export
 #'
@@ -54,6 +60,7 @@ crumble <- function(data,
 										id = NULL,
 										d0 = NULL,
 										d1 = NULL,
+										effect = c("RT", "N", "RI", "O"),
 										learners_regressions = "glm",
 										nn_module = sequential_module(),
 										control = crumble_control()) {
@@ -67,8 +74,16 @@ crumble <- function(data,
 	checkmate::assert_function(d1, nargs = 2, null.ok = TRUE)
 	checkmate::assert_function(nn_module)
 	if (!is.null(obs)) assert_binary_0_1(data[[obs]])
+	assert_effect_type(moc, effect)
 
 	call <- match.call()
+
+	params <- switch(match.arg(effect),
+									 N = natural,
+									 O = organic,
+									 D = decision,
+									 RT = recanting_twin,
+									 RI = randomized)
 
 	# Create crumble_data object
 	cd <- crumble_data(
@@ -88,8 +103,11 @@ crumble <- function(data,
 
 	# Create permuted Z
 	if (!is.null(moc)) {
+		zp <- set_zp(cd, control$zprime_folds)
 		cd@data_0zp <- cd@data_0
-		cd@data_0zp[, cd@vars@Z] <- set_zp(cd, control$zprime_folds)
+		cd@data_1zp <- cd@data_1
+		cd@data_0zp[, cd@vars@Z] <- zp
+		cd@data_1zp[, cd@vars@Z] <- zp
 	}
 
 	# Create folds for cross fitting
@@ -105,44 +123,41 @@ crumble <- function(data,
 		# Validation
 		valid <- validation(cd, folds, i)
 
-		thetas[[i]] <- theta(train, valid, cd@vars, learners_regressions, control)
+		thetas[[i]] <- theta(train, valid, cd@vars, params, learners_regressions, control)
 		cli::cli_progress_update()
 	}
 
 	cli::cli_progress_done()
 	thetas <- recombine_theta(thetas, folds)
 
-	i <- 1
-	cli::cli_progress_step("Computing alpha n density ratios... {i}/{control$crossfit_folds} folds")
-	for (i in seq_along(folds)) {
-		# Training
-		train <- training(cd, folds, i)
-		# Validation
-		valid <- validation(cd, folds, i)
+	if (length(params$natural) != 0) {
+		i <- 1
+		cli::cli_progress_step("Computing alpha n density ratios... {i}/{control$crossfit_folds} folds")
+		for (i in seq_along(folds)) {
+			# Training
+			train <- training(cd, folds, i)
+			# Validation
+			valid <- validation(cd, folds, i)
 
-		if (!is.null(moc)) {
-			alpha_ns[[i]] <- list(
-				"000" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_0", "data_0", "data_0", control),
-				"111" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_1", "data_1", "data_1", control),
-				"011" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_0", "data_1", "data_1", control),
-				"010" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_0", "data_1", "data_0", control)
+			alpha_ns[[i]] <- lapply(
+				params$natural,
+				\(param) phi_n_alpha(train, valid, cd@vars, nn_module, param, control)
 			)
-		} else {
-			# The values of l are arbitrary in this case
-			alpha_ns[[i]] <- list(
-				"00" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_0", "data_0", "data_0", control),
-				"11" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_1", "data_1", "data_1", control),
-				"01" = phi_n_alpha(train, valid, cd@vars, nn_module, "data_0", "data_1", "data_1", control)
-			)
+
+			names(alpha_ns[[i]]) <- unlist(lapply(params$natural, \(x) paste0(gsub("data_", "", x), collapse = "")))
+
+			cli::cli_progress_update()
 		}
 
-		cli::cli_progress_update()
+		cli::cli_progress_done()
+		alpha_ns <- recombine_alpha(alpha_ns, folds)
+		eif_ns <- sapply(colnames(alpha_ns[[1]]), \(jkl) eif_n(cd, thetas$theta_n, alpha_ns, jkl))
+	} else {
+		alpha_ns <- NULL
+		eif_ns <- NULL
 	}
 
-	cli::cli_progress_done()
-	alpha_ns <- recombine_alpha(alpha_ns, folds)
-
-	if (!is.null(moc)) {
+	if (length(params$randomized) != 0) {
 		i <- 1
 		cli::cli_progress_step("Computing alpha r density ratios... {i}/{control$crossfit_folds} folds")
 		for (i in seq_along(folds)) {
@@ -151,36 +166,38 @@ crumble <- function(data,
 			# Validation
 			valid <- validation(cd, folds, i)
 
-			alpha_rs[[i]] <- list(
-				"0111" = phi_r_alpha(train, valid, cd@vars, nn_module, "data_0zp", "data_1", "data_1", "data_1", control),
-				"0011" = phi_r_alpha(train, valid, cd@vars, nn_module, "data_0zp", "data_0", "data_1", "data_1", control),
-				"0010" = phi_r_alpha(train, valid, cd@vars, nn_module, "data_0zp", "data_0", "data_1", "data_0", control)
+			alpha_rs[[i]] <- lapply(
+				params$randomized,
+				\(param) phi_r_alpha(train, valid, cd@vars, nn_module, param, control)
 			)
+
+			names(alpha_rs[[i]]) <-
+				gsub("zp", "", unlist(lapply(params$randomized, \(x) paste0(gsub("data_", "", x), collapse = ""))))
 
 			cli::cli_progress_update()
 		}
-
 		alpha_rs <- recombine_alpha(alpha_rs, folds)
-
-		eif_ns <- sapply(c("000", "111", "011", "010"), \(jkl) eif_n(cd, thetas$theta_n, alpha_ns, jkl))
-		eif_rs <- sapply(c("0111", "0011", "0010"), \(ijkl) eif_r(cd, thetas$theta_r, alpha_rs, ijkl))
+		eif_rs <- sapply(colnames(alpha_rs[[1]]), \(ijkl) eif_r(cd, thetas$theta_r, alpha_rs, ijkl))
 	} else {
-		eif_ns <- sapply(c("00", "11", "01"), \(jk) eif_natural(cd, thetas$theta_n, alpha_ns, jk))
-		eif_rs <- NULL
 		alpha_rs <- NULL
+		eif_rs <- NULL
 	}
 
 	# Estimates ---------------------------------------------------------------
 
 	out <- list(
-		estimates = calc_estimates(eif_ns, eif_rs),
+		estimates = switch(match.arg(effect),
+											 N = calc_estimates_natural(eif_ns),
+											 O = calc_estimates_organic(eif_ns),
+											 RT = calc_estimates_rt(eif_ns, eif_rs),
+											 RI = calc_estimates_ri(eif_rs)),
 		outcome_reg = thetas,
 		alpha_n = alpha_ns,
 		alpha_r = alpha_rs,
 		fits = list(theta_n = thetas$theta_n$weights,
 								theta_r = thetas$theta_r$weights),
 		call = call,
-		natural = is.null(moc)
+		effect = match.arg(effect)
 	)
 
 	class(out) <- "crumble"

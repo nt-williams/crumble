@@ -6,8 +6,8 @@ crumble_data <- S7::new_class("crumble_data",
 		d1 = S7::new_property(S7::class_function, default = NULL),
 		data_0 = S7::new_property(S7::class_data.frame),
 		data_1 = S7::new_property(S7::class_data.frame),
-		data_0zp = S7::new_property(S7::class_data.frame)
-		# Don't need data_1zp
+		data_0zp = S7::new_property(S7::class_data.frame),
+		data_1zp = S7::new_property(S7::class_data.frame)
 	),
 	constructor = function(data, vars, d0, d1) {
 		if (!no_Z(vars)) {
@@ -24,7 +24,8 @@ crumble_data <- S7::new_class("crumble_data",
 									 d1 = d1,
 									 data_0 = shift_data(data, vars@A, vars@C, d0),
 									 data_1 = shift_data(data, vars@A, vars@C, d1),
-									 data_0zp = S7::class_missing)
+									 data_0zp = S7::class_missing,
+									 data_1zp = S7::class_missing)
 	},
 	validator = function(self) {
 		all_vars <- c(self@vars@A, self@vars@W, self@vars@Z, self@vars@M, self@vars@C, self@vars@Y)
@@ -43,12 +44,14 @@ S7::method(training, crumble_data) <- function(x, fold_obj, fold) {
 	list(data = x@data[fold_obj[[fold]]$training_set, , drop = FALSE],
 			 data_0 = x@data_0[fold_obj[[fold]]$training_set, , drop = FALSE],
 			 data_1 = x@data_1[fold_obj[[fold]]$training_set, , drop = FALSE],
-			 data_0zp = x@data_0zp[fold_obj[[fold]]$training_set, , drop = FALSE])
+			 data_0zp = x@data_0zp[fold_obj[[fold]]$training_set, , drop = FALSE],
+			 data_1zp = x@data_1zp[fold_obj[[fold]]$training_set, , drop = FALSE])
 }
 
 S7::method(validation, crumble_data) <- function(x, fold_obj, fold) {
 	list(data = x@data[fold_obj[[fold]]$validation_set, , drop = FALSE],
 			 data_0 = x@data_0[fold_obj[[fold]]$validation_set, , drop = FALSE],
 			 data_1 = x@data_1[fold_obj[[fold]]$validation_set, , drop = FALSE],
-			 data_0zp = x@data_0zp[fold_obj[[fold]]$validation_set, , drop = FALSE])
+			 data_0zp = x@data_0zp[fold_obj[[fold]]$validation_set, , drop = FALSE],
+			 data_1zp = x@data_1zp[fold_obj[[fold]]$validation_set, , drop = FALSE])
 }

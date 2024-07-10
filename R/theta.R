@@ -1,4 +1,4 @@
-theta <- function(train, valid, vars, learners, control) {
+theta <- function(train, valid, vars, params, learners, control) {
 	continuous <- !is_binary(train$data[[vars@Y]])
 	valid <- valid[sapply(valid, \(x) ncol(x) > 0)]
 	obs <- censored(train$data, vars@C)
@@ -13,41 +13,22 @@ theta <- function(train, valid, vars, learners, control) {
 		group = NULL
 	)
 
-	# \theta_n ----------------------------------------------------------------
+	# Natural -----------------------------------------------------------------
 
-	if (!no_Z(vars)) {
-		params <- list(c("data_0", "data_0", "data_0"),
-									 c("data_1", "data_1", "data_1"),
-									 c("data_0", "data_1", "data_1"),
-									 c("data_0", "data_1", "data_0"))
-		params <- lapply(params, \(x) setNames(x, c("j", "k", "l")))
-		vals_n <- vector("list", length = 4)
-		names(vals_n) <- c("000", "111", "011", "010")
-	} else {
-		params <- list(c("data_0", "data_0"),
-									 c("data_1", "data_1"),
-									 c("data_0", "data_1"))
-		params <- lapply(params, \(x) setNames(x, c("j", "k")))
-		vals_n <- vector("list", length = 3)
-		names(vals_n) <- c("00", "11", "01")
-	}
+	if (length(params$natural) != 0) {
+		vals_n <- vector("list", length = length(params$natural))
+		names(vals_n) <- unlist(lapply(params$natural, \(x) paste0(gsub("data_", "", x), collapse = "")))
 
-	for (s in seq_along(params)) {
-		j <- params[[s]]["j"]
-		k <- params[[s]]["k"]
-		l <- params[[s]]["l"]
+		for (s in seq_along(params$natural)) {
+			j <- params$natural[[s]]["j"]
+			k <- params$natural[[s]]["k"]
+			l <- params$natural[[s]]["l"]
 
-		if (!no_Z(vars)) {
 			b3_train <- predict(theta_y, train[[j]])
 			b3_valid <- theta_y$preds[[j]]
-		} else {
-			b2_train <- predict(theta_y, train[[j]])
-			b2_valid <- theta_y$preds[[j]]
-		}
 
-		if (!no_Z(vars)) {
 			theta2 <- mlr3superlearner::mlr3superlearner(
-				data = add_psuedo(train$data[, c(vars@A, vars@W, vars@Z)], b3_train),
+				data = add_psuedo(train$data[, na.omit(c(vars@A, vars@W, vars@Z))], b3_train),
 				target = "tmp_crumble_pseudo_y",
 				library = learners,
 				outcome_type = "continuous",
@@ -58,19 +39,17 @@ theta <- function(train, valid, vars, learners, control) {
 
 			b2_train <- predict(theta2, train[[k]])
 			b2_valid <- theta2$preds[[k]]
-		}
 
-		theta1 <- mlr3superlearner::mlr3superlearner(
-			data = add_psuedo(train$data[, c(vars@A, vars@W)], b2_train),
-			target = "tmp_crumble_pseudo_y",
-			library = learners,
-			outcome_type = "continuous",
-			folds = control$mlr3superlearner_folds,
-			newdata = valid,
-			group = NULL
-		)
+			theta1 <- mlr3superlearner::mlr3superlearner(
+				data = add_psuedo(train$data[, c(vars@A, vars@W)], b2_train),
+				target = "tmp_crumble_pseudo_y",
+				library = learners,
+				outcome_type = "continuous",
+				folds = control$mlr3superlearner_folds,
+				newdata = valid,
+				group = NULL
+			)
 
-		if (!no_Z(vars)) {
 			vals_n[[s]] <- list(
 				fit3_weights = theta_y$weights,
 				fit3_natural = theta_y$preds$data,
@@ -82,35 +61,21 @@ theta <- function(train, valid, vars, learners, control) {
 				fit1_natural = theta1$preds$data,
 				b1 = theta1$preds[[l]]
 			)
-		} else {
-			vals_n[[s]] <- list(
-				fit2_weights = theta_y$weights,
-				fit2_natural = theta_y$preds$data,
-				b2 = b2_valid,
-				fit1_weights = theta1$weights,
-				fit1_natural = theta1$preds$data,
-				b1 = theta1$preds[[k]]
-			)
+		}
+
+		if (length(params$randomized) == 0) {
+			return(list(n = vals_n))
 		}
 	}
 
-	if (no_Z(vars)) {
-		return(list(n = vals_n))
-	}
+	# Randomized --------------------------------------------------------------
 
-	# \theta_r ----------------------------------------------------------------
-
-	params <- list(c("data_0zp", "data_1", "data_1", "data_1"),
-								 c("data_0zp", "data_0", "data_1", "data_1"),
-								 c("data_0zp", "data_0", "data_1", "data_0"))
-	params <- lapply(params, \(x) setNames(x, c("i", "j", "k", "l")))
-
-	vals_r <- vector("list", length = 3)
-	for (s in seq_along(params)) {
-		i <- params[[s]]["i"]
-		j <- params[[s]]["j"]
-		k <- params[[s]]["k"]
-		l <- params[[s]]["l"]
+	vals_r <- vector("list", length = length(params$randomized))
+	for (s in seq_along(params$randomized)) {
+		i <- params$randomized[[s]]["i"]
+		j <- params$randomized[[s]]["j"]
+		k <- params$randomized[[s]]["k"]
+		l <- params$randomized[[s]]["l"]
 
 		b4_train <- predict(theta_y, train[[i]])
 		b4_valid <- theta_y$preds[[i]]
@@ -167,7 +132,12 @@ theta <- function(train, valid, vars, learners, control) {
 		)
 	}
 
-	names(vals_r) <- c("0111", "0011", "0010")
+	names(vals_r) <-
+		gsub("zp", "", unlist(lapply(params$randomized, \(x) paste0(gsub("data_", "", x), collapse = ""))))
+
+	if (length(params$natural) == 0) {
+		return(list(r = vals_r))
+	}
 
 	list(n = vals_n,
 			 r = vals_r)

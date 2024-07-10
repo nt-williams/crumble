@@ -1,12 +1,11 @@
-phi_n_alpha <- function(train, valid, vars, architecture, j, k, l, control) {
-	if (!no_Z(vars)) {
-		.f1 <- \(alpha, dl) alpha(dl[[l]])
-		.f2 <- \(alpha, dl) alpha(dl[[k]])
-		.f3 <- \(alpha, dl) alpha(dl[[j]])
-	} else {
-		.f1 <- \(alpha, dl) alpha(dl[[k]])
-		.f3 <- \(alpha, dl) alpha(dl[[j]])
-	}
+phi_n_alpha <- function(train, valid, vars, architecture, params, control) {
+	j <- params[1]
+	k <- params[2]
+	l <- params[3]
+
+	.f1 <- \(alpha, dl) alpha(dl[[l]])
+	.f2 <- \(alpha, dl) alpha(dl[[k]])
+	.f3 <- \(alpha, dl) alpha(dl[[j]])
 
 	alpha1 <- alpha_n(
 		train = train,
@@ -18,19 +17,15 @@ phi_n_alpha <- function(train, valid, vars, architecture, j, k, l, control) {
 		control = control
 	)
 
-	if (!no_Z(vars)) {
-		alpha2 <- alpha_n(
-			train = train,
-			valid = valid,
-			vars = na.omit(c(vars@A, vars@Z, vars@W)),
-			architecture = architecture,
-			.f = .f2,
-			weights = alpha1$train,
-			control = control
-		)
-	} else {
-		alpha2 <- alpha1
-	}
+	alpha2 <- alpha_n(
+		train = train,
+		valid = valid,
+		vars = na.omit(c(vars@A, vars@Z, vars@W)),
+		architecture = architecture,
+		.f = .f2,
+		weights = alpha1$train,
+		control = control
+	)
 
 	alpha3 <- alpha_n(
 		train = train,
@@ -42,19 +37,19 @@ phi_n_alpha <- function(train, valid, vars, architecture, j, k, l, control) {
 		control = control
 	)
 
-	if (!no_Z(vars)) {
-		list(jkl = gsub("data_", "", paste0(j, k, l, collapse = "")),
-				 alpha1 = alpha1$valid,
-				 alpha2 = alpha2$valid,
-				 alpha3 = alpha3$valid)
-	} else {
-		list(jk = gsub("data_", "", paste0(j, k, collapse = "")),
-				 alpha1 = alpha1$valid,
-				 alpha2 = alpha3$valid)
-	}
+	list(jkl = gsub("data_", "", paste0(j, k, l, collapse = "")),
+			 alpha1 = alpha1$valid,
+			 alpha2 = alpha2$valid,
+			 alpha3 = alpha3$valid)
 }
 
-phi_r_alpha <- function(train, valid, vars, architecture, i, j, k, l, control) {
+phi_r_alpha <- function(train, valid, vars, architecture, params, control) {
+	i <- params[1]
+	j <- params[2]
+	k <- params[3]
+	l <- params[4]
+
+
 	.f1 <- \(alpha, data) alpha(data[[l]])
 	.f2 <- \(alpha, data) alpha(data[[k]])
 	.f3 <- \(alpha, data) alpha(data[[j]])
