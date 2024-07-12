@@ -17,9 +17,9 @@ v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/li
 <!-- badges: end -->
 
 *crumble* implements a modern, unified estimation strategy for common
-mediation estimands (natural effects(Pearl 2022), organic effects(Lok
-2015), interventional effects(Vansteelandt and Daniel 2017), recanting
-twins(Vo et al. 2024)) in causal inference in combination with modified
+mediation estimands: natural effects (Pearl 2022), organic effects (Lok
+2015), interventional effects (Vansteelandt and Daniel 2017), recanting
+twins (Vo et al. 2024), in causal inference in combination with modified
 treatment policies. It makes use of recent advancements in
 “Riesz-learning” to estimate a set of required nuisance parameters using
 deep learning. The result is a software package that is capable of
