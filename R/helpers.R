@@ -6,19 +6,22 @@ add_psuedo <- function(data, x) {
 	cbind("tmp_crumble_pseudo_y" = x, data)
 }
 
-calc_stderror <- function(eif) {
-	sqrt(var(eif) / length(eif))
+calc_stderror <- function(eif, id) {
+	if (length(id) == 1) id <- seq_along(eif)
+	clusters <- split(eif, id)
+	j <- length(clusters)
+	sqrt(var(vapply(clusters, function(x) mean(x), 1)) / j)
 }
 
-calc_ci <- function(x, eif) {
-	se <- calc_stderror(eif)
+calc_ci <- function(x, eif, id) {
+	se <- calc_stderror(eif, id)
 	x + c(-1, 1)*se*qnorm(0.975)
 }
 
 make_folds <- function(data, V, id, strata) {
 	if (missing(strata)) {
 		if (is.na(id)) id <- NULL
-		folds <- origami::make_folds(data, cluster_ids = id, V = V)
+		folds <- origami::make_folds(data, cluster_ids = data[[id]], V = V)
 		if (V == 1) {
 			folds[[1]]$training_set <- folds[[1]]$validation_set
 		}
@@ -32,7 +35,7 @@ make_folds <- function(data, V, id, strata) {
 		folds <- origami::make_folds(data, V = V, strata_ids = strata)
 	} else {
 		if (is.na(id)) id <- NULL
-		folds <- origami::make_folds(data, cluster_ids = id, V = V)
+		folds <- origami::make_folds(data, cluster_ids = data[[id]], V = V)
 	}
 
 	if (V > 1) {

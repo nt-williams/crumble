@@ -135,7 +135,8 @@ crumble <- function(data,
 		fits = list(theta_n = thetas$theta_n$weights,
 								theta_r = thetas$theta_r$weights),
 		call = match.call(),
-		effect = match.arg(effect)
+		effect = match.arg(effect),
+		id = cd@data[[cd@vars@id]]
 	)
 
 	class(out) <- "crumble"
