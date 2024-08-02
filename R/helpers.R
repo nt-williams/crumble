@@ -15,11 +15,31 @@ calc_ci <- function(x, eif) {
 	x + c(-1, 1)*se*qnorm(0.975)
 }
 
-make_folds <- function(data, V) {
-	folds <- origami::make_folds(data, V = V)
-	if (V == 1) {
-		folds[[1]]$training_set <- folds[[1]]$validation_set
+make_folds <- function(data, V, id, strata) {
+	if (missing(strata)) {
+		if (is.na(id)) id <- NULL
+		folds <- origami::make_folds(data, cluster_ids = id, V = V)
+		if (V == 1) {
+			folds[[1]]$training_set <- folds[[1]]$validation_set
+		}
+		return(folds)
 	}
+
+	binomial <- is_binary(data[[strata]])
+	if ((is.na(id) | length(unique(data[[id]])) == nrow(data)) & binomial) {
+		strata <- data[[strata]]
+		strata[is.na(strata)] <- 2
+		folds <- origami::make_folds(data, V = V, strata_ids = strata)
+	} else {
+		if (is.na(id)) id <- NULL
+		folds <- origami::make_folds(data, cluster_ids = id, V = V)
+	}
+
+	if (V > 1) {
+		return(folds)
+	}
+
+	folds[[1]]$training_set <- folds[[1]]$validation_set
 	folds
 }
 

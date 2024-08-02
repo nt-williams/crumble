@@ -64,9 +64,6 @@ crumble <- function(data,
 										learners_regressions = "glm",
 										nn_module = sequential_module(),
 										control = crumble_control()) {
-
-	# check for character vector and error out that they need to be made into factors
-
 	# Perform initial checks
 	checkmate::assert_data_frame(data[, c(trt, outcome, mediators, moc, covar, obs, id)])
 	assert_not_missing(data, trt, covar, mediators, moc, obs)
@@ -103,7 +100,7 @@ crumble <- function(data,
 	cd <- add_zp(cd, moc, control)
 
 	# Create folds for cross fitting
-	folds <- make_folds(cd@data, control$crossfit_folds)
+	folds <- make_folds(cd@data, control$crossfit_folds, cd@vars@id, cd@vars@Y)
 
 	# Estimate \theta nuisance parameters
 	thetas <- estimate_theta(cd, thetas, folds, params, learners_regressions, control)

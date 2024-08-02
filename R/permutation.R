@@ -22,7 +22,7 @@ linear_permutation <- function(data) {
 }
 
 set_zp <- function(cd, folds) {
-	folds <- make_folds(cd@data, folds)
+	folds <- make_folds(cd@data, folds, cd@vars@id)
 
 	AW <- one_hot_encode(cd@data, c(cd@vars@A, cd@vars@W))
 	Z <- cd@data[, cd@vars@Z, drop = FALSE]
