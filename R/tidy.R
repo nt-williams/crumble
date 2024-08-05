@@ -1,3 +1,15 @@
+#' @importFrom generics tidy
+#' @export
+generics::tidy
+
+#' Tidy a(n) crumble object
+#'
+#' @param x A `crumble` object produced by a call to [crumble::crumble()].
+#' @param ... Unused, included for generic consistency only.
+#'
+#' @example inst/examples/examples.R
+#'
+#' @export
 tidy.crumble <- function(x, ...) {
 	out <- switch(x$effect,
 								N = tidy_natural(x),
