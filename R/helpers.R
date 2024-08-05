@@ -7,7 +7,7 @@ add_psuedo <- function(data, x) {
 }
 
 calc_stderror <- function(eif, id) {
-	if (length(id) == 1) id <- seq_along(eif)
+	if (is.null(id)) id <- seq_along(eif)
 	clusters <- split(eif, id)
 	j <- length(clusters)
 	sqrt(var(vapply(clusters, function(x) mean(x), 1)) / j)
@@ -20,11 +20,17 @@ calc_ci <- function(x, eif, id) {
 
 make_folds <- function(data, V, id, strata) {
 	if (missing(strata)) {
-		if (is.na(id)) id <- NULL
-		folds <- origami::make_folds(data, cluster_ids = data[[id]], V = V)
-		if (V == 1) {
-			folds[[1]]$training_set <- folds[[1]]$validation_set
+		if (is.na(id)) {
+			folds <- origami::make_folds(data, V = V)
+		} else {
+			folds <- origami::make_folds(data, cluster_ids = id, V = V)
 		}
+
+		if (V > 1) {
+			return(folds)
+		}
+
+		folds[[1]]$training_set <- folds[[1]]$validation_set
 		return(folds)
 	}
 
@@ -34,8 +40,8 @@ make_folds <- function(data, V, id, strata) {
 		strata[is.na(strata)] <- 2
 		folds <- origami::make_folds(data, V = V, strata_ids = strata)
 	} else {
-		if (is.na(id)) id <- NULL
-		folds <- origami::make_folds(data, cluster_ids = data[[id]], V = V)
+		if (is.na(id)) folds <- origami::make_folds(data, V = V)
+		else folds <- origami::make_folds(data, cluster_ids = data[[id]], V = V)
 	}
 
 	if (V > 1) {

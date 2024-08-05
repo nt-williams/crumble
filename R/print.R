@@ -1,11 +1,10 @@
 #' @export
 print.crumble <- function(x, ...) {
 	switch(x$effect,
-		N = print_natural(x),
-		RT = print_rt(x),
-		O = print_organic(x),
-		RI = print_ri(x)
-	)
+				 N = print_natural(x),
+				 RT = print_rt(x),
+				 O = print_organic(x),
+				 RI = print_ri(x))
 }
 
 print_natural <- function(x) {
