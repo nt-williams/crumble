@@ -61,7 +61,7 @@ crumble <- function(data,
 										d0 = NULL,
 										d1 = NULL,
 										effect = c("RT", "N", "RI", "O"),
-										weights = NULL,
+										weights = rep(1, nrow(data)),
 										learners_regressions = "glm",
 										nn_module = sequential_module(),
 										control = crumble_control()) {
@@ -73,7 +73,9 @@ crumble <- function(data,
 	checkmate::assert_function(nn_module)
 	if (!is.null(obs)) assert_binary_0_1(data[[obs]])
 	assert_effect_type(moc, match.arg(effect))
-	checkmate::assertNumeric(weights, len = nrow(data), finite = TRUE, any.missing = FALSE, null.ok = TRUE)
+	checkmate::assertNumeric(weights, len = nrow(data), finite = TRUE, any.missing = FALSE)
+
+	weights <- normalize(weights)
 
 	params <- switch(match.arg(effect),
 									 N = natural,
@@ -127,10 +129,10 @@ crumble <- function(data,
 
 	out <- list(
 		estimates = switch(match.arg(effect),
-											 N = calc_estimates_natural(eif_ns),
-											 O = calc_estimates_organic(eif_ns),
-											 RT = calc_estimates_rt(eif_ns, eif_rs),
-											 RI = calc_estimates_ri(eif_rs)),
+											 N = calc_estimates_natural(eif_ns, weights),
+											 O = calc_estimates_organic(eif_ns, weights),
+											 RT = calc_estimates_rt(eif_ns, eif_rs, weights),
+											 RI = calc_estimates_ri(eif_rs, weights)),
 		outcome_reg = thetas,
 		alpha_n = alpha_ns,
 		alpha_r = alpha_rs,

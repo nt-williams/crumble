@@ -146,3 +146,13 @@ one_hot_encode <- function(data, vars) {
 }
 
 no_Z <- function(vars) any(is.na(vars@Z))
+
+is_normalized <- function(x, tolerance = .Machine$double.eps^0.5) {
+	# Check if the mean is approximately 1 within the given tolerance
+	abs(mean(x) - 1) < tolerance
+}
+
+normalize <- function(x) {
+	if (is_normalized(x)) return(x)
+	x / mean(x)
+}

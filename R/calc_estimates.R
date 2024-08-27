@@ -1,5 +1,4 @@
 calc_estimates_natural <- function(eif_ns, weights) {
-	weights <- weights %??% rep(1, nrow(eif_ns))
 	list(
 		# A -> Y
 		p1 = weighted.mean(eif_ns[, "100"] - eif_ns[, "000"], weights),
@@ -13,7 +12,6 @@ calc_estimates_natural <- function(eif_ns, weights) {
 }
 
 calc_estimates_organic <- function(eif_ns, weights) {
-	weights <- weights %??% rep(1, nrow(eif_ns))
 	list(
 		ode = weighted.mean(eif_ns[, "101"] - eif_ns[, "000"], weights),
 		eif_ode = eif_ns[, "101"] - eif_ns[, "000"],
@@ -23,7 +21,6 @@ calc_estimates_organic <- function(eif_ns, weights) {
 }
 
 calc_estimates_ri <- function(eif_rs, weights) {
-	weights <- weights %??% rep(1, nrow(eif_rs))
 	list(
 		ride = weighted.mean(eif_rs[, "1100"] - eif_rs[, "0000"], weights),
 		eif_ride = eif_rs[, "1100"] - eif_rs[, "0000"],
@@ -33,7 +30,6 @@ calc_estimates_ri <- function(eif_rs, weights) {
 }
 
 calc_estimates_rt <- function(eif_ns, eif_rs, weights) {
-	weights <- weights %??% rep(1, nrow(eif_ns))
 	list(
 		# A -> Y
 		p1 = weighted.mean(eif_ns[, "111"] - eif_ns[, "011"], weights),
