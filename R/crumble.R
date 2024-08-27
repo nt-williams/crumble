@@ -61,6 +61,7 @@ crumble <- function(data,
 										d0 = NULL,
 										d1 = NULL,
 										effect = c("RT", "N", "RI", "O"),
+										weights = NULL,
 										learners_regressions = "glm",
 										nn_module = sequential_module(),
 										control = crumble_control()) {
@@ -72,6 +73,7 @@ crumble <- function(data,
 	checkmate::assert_function(nn_module)
 	if (!is.null(obs)) assert_binary_0_1(data[[obs]])
 	assert_effect_type(moc, match.arg(effect))
+	checkmate::assertNumeric(weights, len = nrow(data), finite = TRUE, any.missing = FALSE, null.ok = TRUE)
 
 	params <- switch(match.arg(effect),
 									 N = natural,
