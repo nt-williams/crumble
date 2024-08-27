@@ -6,15 +6,16 @@ add_psuedo <- function(data, x) {
 	cbind("tmp_crumble_pseudo_y" = x, data)
 }
 
-calc_stderror <- function(eif, id) {
+calc_stderror <- function(eif, id, weights) {
+	weights <- weights %??% rep(1, length(eif))
 	if (is.null(id)) id <- seq_along(eif)
-	clusters <- split(eif, id)
+	clusters <- split(eif*weights, id)
 	j <- length(clusters)
 	sqrt(var(vapply(clusters, function(x) mean(x), 1)) / j)
 }
 
-calc_ci <- function(x, eif, id) {
-	se <- calc_stderror(eif, id)
+calc_ci <- function(x, eif, id, weights) {
+	se <- calc_stderror(eif, id, weights)
 	x + c(-1, 1)*se*qnorm(0.975)
 }
 

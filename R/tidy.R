@@ -30,14 +30,14 @@ tidy_natural <- function(x) {
 	out$std.error <- mapply(
 		calc_stderror,
 		list(x$estimates$eif_ate, x$estimates$eif_p1, x$estimates$eif_p4),
-		MoreArgs = list(id = x$id), SIMPLIFY = TRUE
+		MoreArgs = list(id = x$id, weights = x$weights), SIMPLIFY = TRUE
 	)
 
 	ci <- mapply(
 		calc_ci,
 		out$estimate,
 		list(x$estimates$eif_ate, x$estimates$eif_p1, x$estimates$eif_p4),
-		MoreArgs = list(id = x$id),
+		MoreArgs = list(id = x$id, weights = x$weights),
 		SIMPLIFY = FALSE
 	)
 
@@ -57,14 +57,14 @@ tidy_rt <- function(x) {
 	out$std.error <- mapply(
 		calc_stderror,
 		lapply(c("eif_ate", paste0("eif_p", 1:4), "eif_intermediate_confounding"), \(i) x$estimates[[i]]),
-		MoreArgs = list(id = x$id), SIMPLIFY = TRUE
+		MoreArgs = list(id = x$id, weights = x$weights), SIMPLIFY = TRUE
 	)
 
 	ci <- mapply(
 		calc_ci,
 		out$estimate,
 		lapply(c("eif_ate", paste0("eif_p", 1:4), "eif_intermediate_confounding"), \(i) x$estimates[[i]]),
-		MoreArgs = list(id = x$id),
+		MoreArgs = list(id = x$id, weights = x$weights),
 		SIMPLIFY = FALSE
 	)
 
@@ -83,14 +83,14 @@ tidy_organic <- function(x) {
 	out$std.error <- mapply(
 		calc_stderror,
 		list(x$estimates$eif_ode, x$estimates$eif_oie),
-		MoreArgs = list(id = x$id), SIMPLIFY = TRUE
+		MoreArgs = list(id = x$id, weights = x$weights), SIMPLIFY = TRUE
 	)
 
 	ci <- mapply(
 		calc_ci,
 		out$estimate,
 		list(x$estimates$eif_ode, x$estimates$eif_oie),
-		MoreArgs = list(id = x$id),
+		MoreArgs = list(id = x$id, weights = x$weights),
 		SIMPLIFY = FALSE
 	)
 
@@ -109,14 +109,14 @@ tidy_ri <- function(x) {
 	out$std.error <- mapply(
 		calc_stderror,
 		list(x$estimates$eif_ride, x$estimates$eif_riie),
-		MoreArgs = list(id = x$id), SIMPLIFY = TRUE
+		MoreArgs = list(id = x$id, weights = x$weights), SIMPLIFY = TRUE
 	)
 
 	ci <- mapply(
 		calc_ci,
 		out$estimate,
 		list(x$estimates$eif_ride, x$estimates$eif_riie),
-		MoreArgs = list(id = x$id),
+		MoreArgs = list(id = x$id, weights = x$weights),
 		SIMPLIFY = FALSE
 	)
 
