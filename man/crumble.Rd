@@ -93,7 +93,7 @@ if (require("mma")) {
 
 	weight_behavior <- na.omit(weight_behavior)
 
-	crumble(
+	res <- crumble(
 		data = weight_behavior,
 		trt = "sports",
 		outcome = "bmi",
@@ -106,6 +106,9 @@ if (require("mma")) {
 		nn_module = sequential_module(),
 		control = crumble_control(crossfit_folds = 1L, zprime_folds = 5L)
 	)
+
+	print(res)
+	tidy(res)
 }
 }
 }
