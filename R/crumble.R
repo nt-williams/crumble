@@ -31,6 +31,8 @@
 #'  and \code{"O"} for organic effects.
 #'  If \code{"RT"} or \code{"RI"} is selected, \code{moc} must be provided.
 #'  If \code{"N"} or \code{"O"} is selected, \code{moc} must be \code{NULL}.
+#' @param weights [\code{numeric}]\cr
+#'  A optional vector of survey weights.
 #' @param learners [\code{character}]\cr
 #'  A vector of \code{mlr3superlearner} algorithms
 #'  for estimation of the outcome regressions. Default is \code{"glm"}, a main effects GLM.
@@ -62,7 +64,7 @@ crumble <- function(data,
 										d1 = NULL,
 										effect = c("RT", "N", "RI", "O"),
 										weights = rep(1, nrow(data)),
-										learners_regressions = "glm",
+										learners = "glm",
 										nn_module = sequential_module(),
 										control = crumble_control()) {
 	# Perform initial checks
@@ -80,7 +82,6 @@ crumble <- function(data,
 	params <- switch(match.arg(effect),
 									 N = natural,
 									 O = organic,
-									 D = decision,
 									 RT = recanting_twin,
 									 RI = randomized)
 
@@ -107,7 +108,7 @@ crumble <- function(data,
 	folds <- make_folds(cd@data, control$crossfit_folds, cd@vars@id, cd@vars@Y)
 
 	# Estimate \theta nuisance parameters
-	thetas <- estimate_theta(cd, thetas, folds, params, learners_regressions, control)
+	thetas <- estimate_theta(cd, thetas, folds, params, learners, control)
 
 	# Estimate density ratios, alpha natural
 	alpha_ns <- estimate_phi_n_alpha(cd, folds, params, nn_module, control)

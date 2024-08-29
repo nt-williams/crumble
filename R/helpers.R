@@ -6,6 +6,7 @@ add_psuedo <- function(data, x) {
 	cbind("tmp_crumble_pseudo_y" = x, data)
 }
 
+#' @importFrom stats na.omit weighted.mean var qnorm dist model.matrix predict setNames
 calc_stderror <- function(eif, id, weights) {
 	weights <- weights %??% rep(1, length(eif))
 	if (is.null(id)) id <- seq_along(eif)

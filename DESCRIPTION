@@ -17,7 +17,13 @@ Authors@R:
              role = c("aut", "cph"),
              comment = c(ORCID = "0000-0001-9056-2047")))
 Maintainer: Nicholas Williams <ntw2117@cumc.columbia.edu>
-Description: 
+Description: A modern, unified estimation strategy for common mediation estimands 
+  (natural effects, organic effects, interventional effects, and recanting twins) in
+	combination with modified treatment policies. Estimation makes use of recent advancements 
+	in “Riesz-learning” to estimate a set of required nuisance parameters with deep learning. 
+	The result is the capability to estimate mediation effects with 
+	binary, categorical, continuous, or multivariate exposures with high-dimensional 
+	mediators and mediator-outcome confounders using machine learning.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
@@ -34,9 +40,15 @@ Imports:
     cli,
     S7,
     data.table,
-    coro
+    coro,
+    generics,
+    lmtp, 
+    mlr3superlearner, 
+    progressr
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    truncnorm, 
+    mma
 Config/testthat/edition: 3
 Remotes: 
     nt-williams/mlr3superlearner

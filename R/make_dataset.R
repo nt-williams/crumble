@@ -1,4 +1,5 @@
 make_dataset <- function(data, x, device) {
+	self <- NULL
 	dataset <- torch::dataset(
 		name = "tmp_crumble_dataset",
 		initialize = function(data, x, device) {

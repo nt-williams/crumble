@@ -17,7 +17,8 @@ Tidy a(n) crumble object
 \examples{
 \donttest{
 if (require("mma")) {
-	data(weight_behavior, package = "mma")
+	library(mma)
+	data(weight_behavior)
 
 	weight_behavior <- na.omit(weight_behavior)
 
@@ -32,7 +33,7 @@ if (require("mma")) {
 		d1 = \(data, trt) factor(rep(2, nrow(data)), levels = c("1", "2")),
 		learners = c("mean", "glm"),
 		nn_module = sequential_module(),
-		control = crumble_control(crossfit_folds = 1L, zprime_folds = 5L)
+		control = crumble_control(crossfit_folds = 1L, zprime_folds = 5L, epochs = 20L)
 	)
 
 	print(res)

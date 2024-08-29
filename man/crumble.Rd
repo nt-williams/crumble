@@ -16,7 +16,8 @@ crumble(
   d0 = NULL,
   d1 = NULL,
   effect = c("RT", "N", "RI", "O"),
-  learners_regressions = "glm",
+  weights = rep(1, nrow(data)),
+  learners = "glm",
   nn_module = sequential_module(),
   control = crumble_control()
 )
@@ -64,14 +65,17 @@ and \code{"O"} for organic effects.
 If \code{"RT"} or \code{"RI"} is selected, \code{moc} must be provided.
 If \code{"N"} or \code{"O"} is selected, \code{moc} must be \code{NULL}.}
 
-\item{nn_module}{[\code{function}]\cr A function that returns a neural network module.}
-
-\item{control}{[\code{crumble_control}]\cr
-Control parameters for the estimation procedure. Use \code{crumble_control()} to set these values.}
+\item{weights}{[\code{numeric}]\cr
+A optional vector of survey weights.}
 
 \item{learners}{[\code{character}]\cr
 A vector of \code{mlr3superlearner} algorithms
 for estimation of the outcome regressions. Default is \code{"glm"}, a main effects GLM.}
+
+\item{nn_module}{[\code{function}]\cr A function that returns a neural network module.}
+
+\item{control}{[\code{crumble_control}]\cr
+Control parameters for the estimation procedure. Use \code{crumble_control()} to set these values.}
 }
 \value{
 A \code{crumble} object containing the following components:
@@ -89,7 +93,8 @@ Mediation analysis using modified treatment policies and recanting twins
 \examples{
 \donttest{
 if (require("mma")) {
-	data(weight_behavior, package = "mma")
+	library(mma)
+	data(weight_behavior)
 
 	weight_behavior <- na.omit(weight_behavior)
 
@@ -104,7 +109,7 @@ if (require("mma")) {
 		d1 = \(data, trt) factor(rep(2, nrow(data)), levels = c("1", "2")),
 		learners = c("mean", "glm"),
 		nn_module = sequential_module(),
-		control = crumble_control(crossfit_folds = 1L, zprime_folds = 5L)
+		control = crumble_control(crossfit_folds = 1L, zprime_folds = 5L, epochs = 20L)
 	)
 
 	print(res)
