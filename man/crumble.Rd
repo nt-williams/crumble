@@ -92,7 +92,7 @@ Mediation analysis using modified treatment policies and recanting twins
 }
 \examples{
 \donttest{
-if (require("mma")) {
+if (require("mma") && torch::torch_is_installed()) {
 	library(mma)
 	data(weight_behavior)
 
@@ -109,7 +109,7 @@ if (require("mma")) {
 		d1 = \(data, trt) factor(rep(2, nrow(data)), levels = c("1", "2")),
 		learners = c("mean", "glm"),
 		nn_module = sequential_module(),
-		control = crumble_control(crossfit_folds = 1L, zprime_folds = 5L, epochs = 20L)
+		control = crumble_control(crossfit_folds = 1L, zprime_folds = 5L, epochs = 10L)
 	)
 
 	print(res)
