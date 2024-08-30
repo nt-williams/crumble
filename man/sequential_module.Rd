@@ -20,5 +20,5 @@ A function that returns a sequential neural network module.
 Sequential neural network module function factory
 }
 \examples{
-sequential_module()
+if (torch::torch_is_installed()) sequential_module()
 }

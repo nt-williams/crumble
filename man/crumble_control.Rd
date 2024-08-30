@@ -37,5 +37,5 @@ A list of control parameters
 Crumble control parameters
 }
 \examples{
-crumble_control(crossfit_folds = 5)
+if (torch::torch_is_installed()) crumble_control(crossfit_folds = 5)
 }

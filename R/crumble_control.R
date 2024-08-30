@@ -13,7 +13,7 @@
 #' @export
 #'
 #' @examples
-#' crumble_control(crossfit_folds = 5)
+#' if (torch::torch_is_installed()) crumble_control(crossfit_folds = 5)
 crumble_control <- function(crossfit_folds = 10L,
 														mlr3superlearner_folds = 10L,
 														zprime_folds = 1L,

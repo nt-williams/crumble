@@ -8,7 +8,7 @@
 #' @export
 #'
 #' @examples
-#' sequential_module()
+#' if (torch::torch_is_installed()) sequential_module()
 sequential_module <- function(layers = 1, hidden = 20, dropout = 0.1) {
 	function(d_in) {
 		d_out <- 1
