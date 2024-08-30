@@ -17,13 +17,16 @@ Authors@R:
              role = c("aut", "cph"),
              comment = c(ORCID = "0000-0001-9056-2047")))
 Maintainer: Nicholas Williams <ntw2117@cumc.columbia.edu>
-Description: A modern, unified estimation strategy for common mediation estimands 
-  (natural effects, organic effects, interventional effects, and recanting twins) in
-	combination with modified treatment policies. Estimation makes use of recent advancements 
-	in “Riesz-learning” to estimate a set of required nuisance parameters with deep learning. 
-	The result is the capability to estimate mediation effects with 
-	binary, categorical, continuous, or multivariate exposures with high-dimensional 
-	mediators and mediator-outcome confounders using machine learning.
+Description: Implements modern, unified estimation strategy for common 
+	mediation estimands (natural effects, organic effects, interventional effects, 
+	and recanting twins) in combination with modified treatment policies as 
+	described in Liu, Williams, Rudolph, and Díaz (2024) 
+	<doi:10.48550/arXiv.2408.14620>. Estimation makes use of recent advancements 
+	in “Riesz-learning” to estimate a set of required nuisance parameters with 
+	deep learning. The result is the capability to estimate mediation effects with 
+	binary, categorical, continuous, or multivariate exposures with 
+	high-dimensional mediators and mediator-outcome confounders using machine 
+	learning.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
