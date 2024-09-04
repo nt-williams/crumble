@@ -1,4 +1,10 @@
-#' Mediation analysis using modified treatment policies and recanting twins
+#' Flexible and general mediation analysis
+#'
+#' General estimator for common mediation causal effects, including recanting
+#' twins, natural effects, organic effects, and randomized interventional
+#' effects. Interventions are specified using modified treatment policies.
+#' Nuisance parameters are estimated using the 'super learner' algorithm and
+#' 'Riesz learning'. Supports binary, categorical, and continuous exposures.
 #'
 #' @param data [\code{data.frame}]\cr
 #'  A \code{data.frame} in wide format containing all necessary variables

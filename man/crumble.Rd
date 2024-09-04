@@ -2,7 +2,7 @@
 % Please edit documentation in R/crumble.R
 \name{crumble}
 \alias{crumble}
-\title{Mediation analysis using modified treatment policies and recanting twins}
+\title{Flexible and general mediation analysis}
 \usage{
 crumble(
   data,
@@ -88,7 +88,11 @@ A \code{crumble} object containing the following components:
 \item{effect}{The estimated effect type.}
 }
 \description{
-Mediation analysis using modified treatment policies and recanting twins
+General estimator for common mediation causal effects, including recanting
+twins, natural effects, organic effects, and randomized interventional
+effects. Interventions are specified using modified treatment policies.
+Nuisance parameters are estimated using the 'super learner' algorithm and
+'Riesz learning'. Supports binary, categorical, and continuous exposures.
 }
 \examples{
 \donttest{
