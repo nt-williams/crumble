@@ -54,6 +54,8 @@
 #' \item{fits}{A list of the fitted values from the outcome regressions.}
 #' \item{call}{The matched call.}
 #' \item{effect}{The estimated effect type.}
+#' \item{id}{Vector of cluster level identifiers.}
+#' \item{weights}{Vector of survey weights.}
 #'
 #' @export
 #'
