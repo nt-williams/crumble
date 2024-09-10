@@ -17,7 +17,7 @@ Authors@R:
              email = "ivan.diaz@nyulangone.org",
              role = c("aut", "cph"),
              comment = c(ORCID = "0000-0001-9056-2047")))
-Maintainer: Nicholas Williams <ntw2117@cumc.columbia.edu>
+Maintainer: Nicholas Williams <ntwilliams.personal@gmail.com>
 Description: Implements a modern, unified estimation strategy for common 
 	mediation estimands (natural effects, organic effects, interventional effects, 
 	and recanting twins) in combination with modified treatment policies as 
