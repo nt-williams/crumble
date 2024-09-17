@@ -11,6 +11,9 @@
 
 \item{...}{Unused, included for generic consistency only.}
 }
+\value{
+A tidy [tibble::tibble()] summarizing information about the model.
+}
 \description{
 Tidy a(n) crumble object
 }

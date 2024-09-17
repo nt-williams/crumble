@@ -1,3 +1,7 @@
+## Notes
+
+-		Added \value tag to tidy.crumble() documentation
+
 ## Test environments
 
 -   Mac OS, ARM64 (local install), R release

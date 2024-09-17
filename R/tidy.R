@@ -7,6 +7,8 @@ generics::tidy
 #' @param x A `crumble` object produced by a call to [crumble::crumble()].
 #' @param ... Unused, included for generic consistency only.
 #'
+#' @return A tidy [tibble::tibble()] summarizing information about the model.
+#'
 #' @example inst/examples/examples.R
 #'
 #' @export
