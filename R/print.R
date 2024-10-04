@@ -84,5 +84,5 @@ print_ri <- function(x) {
 	cli::cli_h3("{.emph Randomized Indirect Effect}")
 	cli::cli_text(cat("      "), "{.strong Estimate}: {round(x$estimates$riie, 4)}")
 	cli::cli_text(cat("    "), "{.strong Std. error}: {round(calc_stderror(x$estimates$eif_riie, x$id, x$weights), 4)}")
-	cli::cli_text(cat("        "), "{.strong 95% CI}: ({round(calc_ci(x$estimates$riie, x$estimates$eif_riie, x$id, x$weights)[1], 4)}, {round(calc_ci(x$estimates$ride, x$estimates$eif_riie, x$id, x$weights)[2], 4)})")
+	cli::cli_text(cat("        "), "{.strong 95% CI}: ({round(calc_ci(x$estimates$riie, x$estimates$eif_riie, x$id, x$weights)[1], 4)}, {round(calc_ci(x$estimates$riie, x$estimates$eif_riie, x$id, x$weights)[2], 4)})")
 }
