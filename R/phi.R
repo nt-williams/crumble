@@ -27,44 +27,39 @@ phi_n_alpha <- function(train, valid, vars, architecture, params, control) {
 	k <- params[2]
 	l <- params[3]
 
-	.f1 <- \(alpha, dl) alpha(dl[[l]])
-	.f2 <- \(alpha, dl) alpha(dl[[k]])
-	.f3 <- \(alpha, dl) alpha(dl[[j]])
-
-	alpha1 <- Alpha(
-		train = train,
-		valid = valid,
-		vars = na.omit(c(vars@A, vars@W)),
-		architecture = architecture,
-		.f = .f1,
-		weights = NULL,
-		control = control
+	alpha1 <- rieszboost::rieszboost(
+		data = train$data,
+		A = vars@A,
+		X = vars@W,
+		shifted = train[[l]],
+		newdata = valid$data,
+		rounds = 500
 	)
 
-	alpha2 <- Alpha(
-		train = train,
-		valid = valid,
-		vars = na.omit(c(vars@A, vars@Z, vars@W)),
-		architecture = architecture,
-		.f = .f2,
-		weights = alpha1$train,
-		control = control
+	alpha2 <- rieszboost::rieszboost(
+		data = train$data,
+		A = vars@A,
+		X = na.omit(c(vars@Z, vars@W)),
+		shifted = train[[k]],
+		newdata = valid$data,
+		weights = alpha1$fitted,
+		rounds = 500
 	)
 
-	alpha3 <- Alpha(
-		train = train,
-		valid = valid,
-		vars = na.omit(c(vars@A, vars@C, vars@M, vars@Z, vars@W)),
-		architecture = architecture,
-		.f = .f3,
-		weights = alpha2$train,
-		control = control
+	alpha3 <- rieszboost::rieszboost(
+		data = train$data,
+		A = vars@A,
+		X = na.omit(c(vars@C, vars@M, vars@Z, vars@W)),
+		shifted = train[[j]],
+		newdata = valid$data,
+		weights = alpha2$fitted,
+		rounds = 500
 	)
 
 	list(jkl = gsub("data_", "", paste0(j, k, l, collapse = "")),
-			 alpha1 = alpha1$valid,
-			 alpha2 = alpha2$valid,
-			 alpha3 = alpha3$valid)
+			 alpha1 = alpha1$pred,
+			 alpha2 = alpha2$pred,
+			 alpha3 = alpha3$pred)
 }
 
 estimate_phi_r_alpha <- function(cd, folds, params, nn_module, control) {
@@ -97,55 +92,48 @@ phi_r_alpha <- function(train, valid, vars, architecture, params, control) {
 	k <- params[3]
 	l <- params[4]
 
-
-	.f1 <- \(alpha, data) alpha(data[[l]])
-	.f2 <- \(alpha, data) alpha(data[[k]])
-	.f3 <- \(alpha, data) alpha(data[[j]])
-	.f4 <- \(alpha, data) alpha(data[[i]])
-
-	alpha1 <- Alpha(
-		train = train,
-		valid = valid,
-		vars = na.omit(c(vars@A, vars@W)),
-		architecture = architecture,
-		.f = .f1,
-		weights = NULL,
-		control = control
+	alpha1 <- rieszboost::rieszboost(
+		data = train$data,
+		A = vars@A,
+		X = vars@W,
+		shifted = train[[l]],
+		newdata = valid$data,
+		rounds = 500
 	)
 
-	alpha2 <- Alpha(
-		train = train,
-		valid = valid,
-		vars = na.omit(c(vars@A, vars@Z, vars@W)),
-		architecture = architecture,
-		.f = .f2,
-		weights = alpha1$train,
-		control = control
+	alpha2 <- rieszboost::rieszboost(
+		data = train$data,
+		A = vars@A,
+		X = na.omit(c(vars@Z, vars@W)),
+		shifted = train[[k]],
+		newdata = valid$data,
+		weights = alpha1$fitted,
+		rounds = 500
 	)
 
-	alpha3 <- Alpha(
-		train = train,
-		valid = valid,
-		vars = na.omit(c(vars@A, vars@M, vars@W)),
-		architecture = architecture,
-		.f = .f3,
-		weights = alpha2$train,
-		control = control
+	alpha3 <- rieszboost::rieszboost(
+		data = train$data,
+		A = vars@A,
+		X = na.omit(c(vars@M, vars@W)),
+		shifted = train[[j]],
+		newdata = valid$data,
+		weights = alpha2$fitted,
+		rounds = 500
 	)
 
-	alpha4 <- Alpha(
-		train = train,
-		valid = valid,
-		vars = na.omit(c(vars@A, vars@C, vars@Z, vars@M, vars@W)),
-		architecture = architecture,
-		.f = .f4,
-		weights = alpha3$train,
-		control = control
+	alpha4 <- rieszboost::rieszboost(
+		data = train$data,
+		A = vars@A,
+		X = na.omit(c(vars@C, vars@Z, vars@M, vars@W)),
+		shifted = train[[i]],
+		newdata = valid$data,
+		weights = alpha3$fitted,
+		rounds = 500
 	)
 
 	list(ijkl = gsub("data_", "", paste0(i, j, k, l, collapse = "")),
-			 alpha1 = alpha1$valid,
-			 alpha2 = alpha2$valid,
-			 alpha3 = alpha3$valid,
-			 alpha4 = alpha4$valid)
+			 alpha1 = alpha1$pred,
+			 alpha2 = alpha2$pred,
+			 alpha3 = alpha3$pred,
+			 alpha4 = alpha4$pred)
 }
