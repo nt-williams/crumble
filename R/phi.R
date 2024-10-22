@@ -27,39 +27,54 @@ phi_n_alpha <- function(train, valid, vars, architecture, params, control) {
 	k <- params[2]
 	l <- params[3]
 
-	alpha1 <- rieszboost::rieszboost(
-		data = train$data,
-		A = vars@A,
-		X = vars@W,
-		shifted = train[[l]],
-		newdata = valid$data,
-		rounds = 500
+	net <- make_module(train$data[, c(vars@W, vars@A), drop = FALSE])
+	alpha1 <- riesznet::riesznet(
+		data = train$data[, c(vars@W, vars@A), drop = FALSE],
+		shifted = list(data_1 = train[[l]][, c(vars@W, vars@A), drop = FALSE]),
+		.f = \(data_1) data_1,
+		net = net,
+		epochs = control$epochs,
+		max_lr = control$learning_rate,
+		batch_size = control$batch_size,
+		weight_decay = control$weight_decay,
+		patience = control$patience,
+		verbose = TRUE
 	)
 
-	alpha2 <- rieszboost::rieszboost(
-		data = train$data,
-		A = vars@A,
-		X = na.omit(c(vars@Z, vars@W)),
-		shifted = train[[k]],
-		newdata = valid$data,
-		weights = alpha1$fitted,
-		rounds = 500
+	net <- make_module(train$data[, na.omit(c(vars@Z, vars@W, vars@A)), drop = FALSE])
+	alpha2 <- riesznet::riesznet(
+		data = train$data[, na.omit(c(vars@Z, vars@W, vars@A)), drop = FALSE],
+		shifted = list(data_1 = train[[k]][, na.omit(c(vars@Z, vars@W, vars@A)), drop = FALSE]),
+		.f = \(data_1) data_1,
+		net = net,
+		weights = as.numeric(predict(alpha1, train$data)),
+		epochs = control$epochs,
+		max_lr = control$learning_rate,
+		batch_size = control$batch_size,
+		weight_decay = control$weight_decay,
+		patience = control$patience,
+		verbose = TRUE
 	)
 
-	alpha3 <- rieszboost::rieszboost(
-		data = train$data,
-		A = vars@A,
-		X = na.omit(c(vars@C, vars@M, vars@Z, vars@W)),
-		shifted = train[[j]],
-		newdata = valid$data,
-		weights = alpha2$fitted,
-		rounds = 500
+	net <- make_module(train$data[, na.omit(c(vars@C, vars@M, vars@Z, vars@W)), drop = FALSE])
+	alpha3 <- riesznet::riesznet(
+		data = train$data[, na.omit(c(vars@C, vars@M, vars@Z, vars@W)), drop = FALSE],
+		shifted = list(data_1 = train[[j]][, na.omit(c(vars@C, vars@M, vars@Z, vars@W)), drop = FALSE]),
+		.f = \(data_1) data_1,
+		net = net,
+		weights = as.numeric(predict(alpha2, train$data)),
+		epochs = control$epochs,
+		max_lr = control$learning_rate,
+		batch_size = control$batch_size,
+		weight_decay = control$weight_decay,
+		patience = control$patience,
+		verbose = TRUE
 	)
 
 	list(jkl = gsub("data_", "", paste0(j, k, l, collapse = "")),
-			 alpha1 = alpha1$pred,
-			 alpha2 = alpha2$pred,
-			 alpha3 = alpha3$pred)
+			 alpha1 = as.numeric(predict(alpha1, valid$data)),
+			 alpha2 = as.numeric(predict(alpha2, valid$data)),
+			 alpha3 = as.numeric(predict(alpha3, valid$data)))
 }
 
 estimate_phi_r_alpha <- function(cd, folds, params, nn_module, control) {
@@ -92,48 +107,68 @@ phi_r_alpha <- function(train, valid, vars, architecture, params, control) {
 	k <- params[3]
 	l <- params[4]
 
-	alpha1 <- rieszboost::rieszboost(
-		data = train$data,
-		A = vars@A,
-		X = vars@W,
-		shifted = train[[l]],
-		newdata = valid$data,
-		rounds = 500
+	net <- make_module(train$data[, c(vars@W, vars@A), drop = FALSE])
+	alpha1 <- riesznet::riesznet(
+		data = train$data[, c(vars@W, vars@A), drop = FALSE],
+		shifted = list(data_1 = train[[l]][, c(vars@W, vars@A), drop = FALSE]),
+		.f = \(data_1) data_1,
+		net = net,
+		epochs = control$epochs,
+		max_lr = control$learning_rate,
+		batch_size = control$batch_size,
+		weight_decay = control$weight_decay,
+		patience = control$patience,
+		verbose = TRUE
 	)
 
-	alpha2 <- rieszboost::rieszboost(
-		data = train$data,
-		A = vars@A,
-		X = na.omit(c(vars@Z, vars@W)),
-		shifted = train[[k]],
-		newdata = valid$data,
-		weights = alpha1$fitted,
-		rounds = 500
+	net <- make_module(train$data[, na.omit(c(vars@Z, vars@W, vars@A)), drop = FALSE])
+	alpha2 <- riesznet::riesznet(
+		data = train$data[, na.omit(c(vars@Z, vars@W, vars@A)), drop = FALSE],
+		shifted = list(data_1 = train[[k]][, na.omit(c(vars@Z, vars@W, vars@A)), drop = FALSE]),
+		.f = \(data_1) data_1,
+		net = net,
+		weights = as.numeric(predict(alpha1, train$data)),
+		epochs = control$epochs,
+		max_lr = control$learning_rate,
+		batch_size = control$batch_size,
+		weight_decay = control$weight_decay,
+		patience = control$patience,
+		verbose = TRUE
 	)
 
-	alpha3 <- rieszboost::rieszboost(
-		data = train$data,
-		A = vars@A,
-		X = na.omit(c(vars@M, vars@W)),
-		shifted = train[[j]],
-		newdata = valid$data,
-		weights = alpha2$fitted,
-		rounds = 500
+	net <- make_module(train$data[, na.omit(c(vars@M, vars@W, vars@A)), drop = FALSE])
+	alpha3 <- riesznet::riesznet(
+		data = train$data[, na.omit(c(vars@M, vars@W, vars@A)), drop = FALSE],
+		shifted = list(data_1 = train[[j]][, na.omit(c(vars@M, vars@W, vars@A)), drop = FALSE]),
+		.f = \(data_1) data_1,
+		net = net,
+		weights = as.numeric(predict(alpha2, train$data)),
+		epochs = control$epochs,
+		max_lr = control$learning_rate,
+		batch_size = control$batch_size,
+		weight_decay = control$weight_decay,
+		patience = control$patience,
+		verbose = TRUE
 	)
 
-	alpha4 <- rieszboost::rieszboost(
-		data = train$data,
-		A = vars@A,
-		X = na.omit(c(vars@C, vars@Z, vars@M, vars@W)),
-		shifted = train[[i]],
-		newdata = valid$data,
-		weights = alpha3$fitted,
-		rounds = 500
+	net <- make_module(train$data[, na.omit(c(vars@C, vars@Z, vars@M, vars@W, vars@A)), drop = FALSE])
+	alpha4 <- riesznet::riesznet(
+		data = train$data[, na.omit(c(vars@C, vars@Z, vars@M, vars@W, vars@A)), drop = FALSE],
+		shifted = list(data_1 = train[[i]][, na.omit(c(vars@C, vars@Z, vars@M, vars@W, vars@A)), drop = FALSE]),
+		.f = \(data_1) data_1,
+		net = net,
+		weights = as.numeric(predict(alpha3, train$data)),
+		epochs = control$epochs,
+		max_lr = control$learning_rate,
+		batch_size = control$batch_size,
+		weight_decay = control$weight_decay,
+		patience = control$patience,
+		verbose = TRUE
 	)
 
 	list(ijkl = gsub("data_", "", paste0(i, j, k, l, collapse = "")),
-			 alpha1 = alpha1$pred,
-			 alpha2 = alpha2$pred,
-			 alpha3 = alpha3$pred,
-			 alpha4 = alpha4$pred)
+			 alpha1 = as.numeric(predict(alpha1, valid$data)),
+			 alpha2 = as.numeric(predict(alpha2, valid$data)),
+			 alpha3 = as.numeric(predict(alpha3, valid$data)),
+			 alpha4 = as.numeric(predict(alpha4, valid$data)))
 }

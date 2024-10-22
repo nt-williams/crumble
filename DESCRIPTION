@@ -46,11 +46,14 @@ Imports:
     data.table,
     coro,
     generics,
-    lmtp, 
-    mlr3superlearner, 
-    progressr
+    lmtp,
+    mlr3superlearner,
+    progressr,
+    riesznet (>= 0.1.0)
 Suggests: 
     testthat (>= 3.0.0),
     truncnorm, 
     mma
 Config/testthat/edition: 3
+Remotes:  
+    nt-williams

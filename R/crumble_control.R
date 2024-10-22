@@ -17,9 +17,11 @@
 crumble_control <- function(crossfit_folds = 10L,
 														mlr3superlearner_folds = 10L,
 														zprime_folds = 1L,
-														epochs = 100L,
-														learning_rate = 0.01,
+														epochs = 500L,
+														learning_rate = 0.1,
 														batch_size = 64,
+														patience = 10,
+														weight_decay = 0.0001,
 														device = c("cpu", "cuda", "mps")) {
 	checkmate::assert_number(crossfit_folds)
 	checkmate::assert_number(mlr3superlearner_folds)
@@ -27,6 +29,7 @@ crumble_control <- function(crossfit_folds = 10L,
 	checkmate::assert_number(epochs)
 	checkmate::assert_number(learning_rate)
 	checkmate::assert_number(batch_size)
+	checkmate::assert_number(patience)
 	checkmate::assert_character(match.arg(device), len = 1)
 	list(
 		crossfit_folds = crossfit_folds,
@@ -35,6 +38,8 @@ crumble_control <- function(crossfit_folds = 10L,
 		epochs = epochs,
 		learning_rate = learning_rate,
 		batch_size = as.numeric(batch_size),
+		patience = patience,
+		weight_decay = weight_decay,
 		device = torch::torch_device(match.arg(device))
 	)
 }
