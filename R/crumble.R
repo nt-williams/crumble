@@ -54,8 +54,6 @@
 #' \item{fits}{A list of the fitted values from the outcome regressions.}
 #' \item{call}{The matched call.}
 #' \item{effect}{The estimated effect type.}
-#' \item{id}{Vector of cluster level identifiers.}
-#' \item{weights}{Vector of survey weights.}
 #'
 #' @importFrom checkmate assert_data_frame assert_function assert_numeric
 #'
@@ -149,9 +147,7 @@ crumble <- function(data,
 			theta_r = thetas$theta_r$weights
 		),
 		call = match.call(),
-		effect = match.arg(effect),
-		id = cd@data[[cd@vars@id]],
-		weights = weights
+		effect = match.arg(effect)
 	)
 
 	class(out) <- "crumble"
