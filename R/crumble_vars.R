@@ -1,5 +1,6 @@
 # enable usage of <S7_object>@name in package code
 #' @rawNamespace if (getRversion() < "4.3.0") importFrom("S7", "@")
+#' @importFrom stats na.omit weighted.mean var qnorm dist model.matrix predict setNames
 NULL
 
 crumble_vars <- S7::new_class("crumble_vars",

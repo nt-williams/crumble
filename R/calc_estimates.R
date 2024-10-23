@@ -22,7 +22,7 @@ calc_estimates_ri <- function(eif_rs, weights) {
 
 calc_estimates_rt <- function(eif_ns, eif_rs, weights) {
 	ans <- list(
-		p1 = eif_ns[["111"]] - eif_ns[["000"]], 		# A -> Y
+		p1 = eif_ns[["111"]] - eif_ns[["011"]], 		# A -> Y
 		p2 = eif_rs[["0111"]] - eif_rs[["0011"]],   # A -> Z -> Y
 		p3 = eif_rs[["0011"]] - eif_rs[["0010"]],		# A -> Z -> M -> Y
 		p4 = eif_ns[["010"]] - eif_ns[["000"]],		  # A -> M -> Y

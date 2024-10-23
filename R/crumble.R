@@ -57,6 +57,8 @@
 #' \item{id}{Vector of cluster level identifiers.}
 #' \item{weights}{Vector of survey weights.}
 #'
+#' @importFrom checkmate assert_data_frame assert_function assert_numeric
+#'
 #' @export
 #'
 #' @example inst/examples/examples.R
@@ -77,14 +79,15 @@ crumble <- function(data,
 										control = crumble_control()) {
 
 	# Perform initial checks
-	checkmate::assert_data_frame(data[, c(trt, outcome, mediators, moc, covar, obs, id)])
+	assert_data_frame(data[, c(trt, outcome, mediators, moc, covar, obs, id)])
 	assert_not_missing(data, trt, covar, mediators, moc, obs)
-	checkmate::assert_function(d0, nargs = 2, null.ok = TRUE)
-	checkmate::assert_function(d1, nargs = 2, null.ok = TRUE)
-	checkmate::assert_function(nn_module)
-	if (!is.null(obs)) assert_binary_0_1(data[[obs]])
+	assert_function(d0, nargs = 2, null.ok = TRUE)
+	assert_function(d1, nargs = 2, null.ok = TRUE)
+	assert_function(nn_module)
+	assert_binary_0_1(data, outcome)
+	assert_binary_0_1(data, obs)
 	assert_effect_type(moc, match.arg(effect))
-	checkmate::assertNumeric(weights, len = nrow(data), finite = TRUE, any.missing = FALSE)
+	assert_numeric(weights, len = nrow(data), finite = TRUE, any.missing = FALSE)
 
 	params <- switch(
 		match.arg(effect),

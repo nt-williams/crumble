@@ -10,9 +10,13 @@ check_for_missing <- function(data, A, W, M, Z, C) {
 
 assert_not_missing <- checkmate::makeAssertionFunction(check_for_missing)
 
-check_binary_0_1 <- function(x) {
+check_binary_0_1 <- function(data, x) {
+	if (is.null(x)) return(TRUE)
+
+	var <- data[[x]]
+
 	# Check if there are exactly two unique values and they are not 0 and 1
-	if (length(x) == 2 && !all(x %in% c(0, 1))) {
+	if (length(unique(var)) == 2 && !all(var %in% c(0, 1))) {
 		return("The outcome contains exactly two unique values, but they are not 0 and 1")
 	}
 

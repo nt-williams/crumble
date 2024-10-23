@@ -1,10 +1,12 @@
+#' @importFrom cli cli_div cli_rule cli_end cli_h3
+#' @importFrom purrr iwalk
 #' @export
 print.crumble <- function(x, ...) {
 	cat("\n")
-	d <- cli::cli_div(theme = list(rule = list("line-type" = "double")))
-	cli::cli_rule(left = "Results {.fn crumble}")
-	cli::cli_end(d)
-	purrr::iwalk(x$estimates, print_estimate)
+	d <- cli_div(theme = list(rule = list("line-type" = "double")))
+	cli_rule(left = "Results {.fn crumble}")
+	cli_end(d)
+	iwalk(x$estimates, print_estimate)
 }
 
 print_estimate <- function(x, name) {
@@ -21,6 +23,6 @@ print_estimate <- function(x, name) {
 									"oie" = "Organic Indirect Effect",
 									"ride" = "Randomized Direct Effect",
 									"riie" = "Randomized Indirect Effect")
-	cli::cli_h3("{.emph {title}}")
+	cli_h3("{.emph {title}}")
 	print(x)
 }
