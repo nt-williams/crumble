@@ -75,6 +75,7 @@ crumble <- function(data,
 										learners = "glm",
 										nn_module = sequential_module(),
 										control = crumble_control()) {
+
 	# Perform initial checks
 	checkmate::assert_data_frame(data[, c(trt, outcome, mediators, moc, covar, obs, id)])
 	assert_not_missing(data, trt, covar, mediators, moc, obs)
@@ -85,13 +86,13 @@ crumble <- function(data,
 	assert_effect_type(moc, match.arg(effect))
 	checkmate::assertNumeric(weights, len = nrow(data), finite = TRUE, any.missing = FALSE)
 
-	weights <- normalize(weights)
-
-	params <- switch(match.arg(effect),
-									 N = natural,
-									 O = organic,
-									 RT = recanting_twin,
-									 RI = randomized)
+	params <- switch(
+		match.arg(effect),
+		N = natural,
+		O = organic,
+		RT = recanting_twin,
+		RI = randomized
+	)
 
 	# Create crumble_data object
 	cd <- crumble_data(
@@ -105,6 +106,7 @@ crumble <- function(data,
 			C = obs %??% NA_character_,
 			id = id %??% NA_character_
 		),
+		weights = weights,
 		d0 = d0,
 		d1 = d1
 	)
@@ -120,33 +122,29 @@ crumble <- function(data,
 
 	# Estimate density ratios, alpha natural
 	alpha_ns <- estimate_phi_n_alpha(cd, folds, params, nn_module, control)
-	if (!is.null(alpha_ns)) {
-		eif_ns <- sapply(colnames(alpha_ns[[1]]), \(jkl) eif_n(cd, thetas$theta_n, alpha_ns, jkl))
-	} else {
-		eif_ns <- NULL
-	}
+	eif_ns <- calc_eifs(cd, alpha_ns, thetas, eif_n)
 
   # Estimate density ratios, alpha randomized
 	alpha_rs <- estimate_phi_r_alpha(cd, folds, params, nn_module, control)
-	if (!is.null(alpha_rs)) {
-		eif_rs <- sapply(colnames(alpha_rs[[1]]), \(ijkl) eif_r(cd, thetas$theta_r, alpha_rs, ijkl))
-	} else {
-		eif_rs <- NULL
-	}
+	eif_rs <- calc_eifs(cd, alpha_rs, thetas, eif_r)
 
 	# Estimates ---------------------------------------------------------------
 
 	out <- list(
-		estimates = switch(match.arg(effect),
-											 N = calc_estimates_natural(eif_ns, weights),
-											 O = calc_estimates_organic(eif_ns, weights),
-											 RT = calc_estimates_rt(eif_ns, eif_rs, weights),
-											 RI = calc_estimates_ri(eif_rs, weights)),
+		estimates = switch(
+			match.arg(effect),
+			N = calc_estimates_natural(eif_ns, weights),
+			O = calc_estimates_organic(eif_ns, weights),
+			RT = calc_estimates_rt(eif_ns, eif_rs, weights),
+			RI = calc_estimates_ri(eif_rs, weights)
+		),
 		outcome_reg = thetas,
 		alpha_n = alpha_ns,
 		alpha_r = alpha_rs,
-		fits = list(theta_n = thetas$theta_n$weights,
-								theta_r = thetas$theta_r$weights),
+		fits = list(
+			theta_n = thetas$theta_n$weights,
+			theta_r = thetas$theta_r$weights
+		),
 		call = match.call(),
 		effect = match.arg(effect),
 		id = cd@data[[cd@vars@id]],
