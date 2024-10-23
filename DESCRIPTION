@@ -49,7 +49,8 @@ Imports:
     lmtp,
     mlr3superlearner,
     progressr,
-    riesznet (>= 0.1.0)
+    riesznet (>= 0.1.0),
+    ife (>= 0.1.0)
 Suggests: 
     testthat (>= 3.0.0),
     truncnorm, 

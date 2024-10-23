@@ -17,6 +17,7 @@ estimate_phi_n_alpha <- function(cd, folds, params, nn_module, control) {
 		}
 
 		cli::cli_progress_done()
+
 		return(recombine_alpha(alpha_ns, folds))
 	}
 	NULL
@@ -92,10 +93,13 @@ estimate_phi_r_alpha <- function(cd, folds, params, nn_module, control) {
 			)
 
 			names(alpha_rs[[i]]) <-
-				gsub("zp", "", unlist(lapply(params$randomized, \(x) paste0(gsub("data_", "", x), collapse = ""))))
+				gsub("zp", "", unlist(lapply(
+					params$randomized, \(x) paste0(gsub("data_", "", x), collapse = "")
+				)))
 
 			cli::cli_progress_update()
 		}
+
 		return(recombine_alpha(alpha_rs, folds))
 	}
 	NULL
