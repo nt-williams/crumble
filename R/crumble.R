@@ -42,7 +42,6 @@
 #' @param learners [\code{character}]\cr
 #'  A vector of \code{mlr3superlearner} algorithms
 #'  for estimation of the outcome regressions. Default is \code{"glm"}, a main effects GLM.
-#' @param nn_module [\code{function}]\cr A function that returns a neural network module.
 #' @param control [\code{crumble_control}]\cr
 #'  Control parameters for the estimation procedure. Use \code{crumble_control()} to set these values.
 #'
@@ -73,7 +72,6 @@ crumble <- function(data,
 										effect = c("RT", "N", "RI", "O"),
 										weights = rep(1, nrow(data)),
 										learners = "glm",
-										nn_module = sequential_module(),
 										control = crumble_control()) {
 
 	# Perform initial checks
@@ -81,7 +79,6 @@ crumble <- function(data,
 	assert_not_missing(data, trt, covar, mediators, moc, obs)
 	assert_function(d0, nargs = 2, null.ok = TRUE)
 	assert_function(d1, nargs = 2, null.ok = TRUE)
-	assert_function(nn_module)
 	assert_binary_0_1(data, outcome)
 	assert_binary_0_1(data, obs)
 	assert_effect_type(moc, match.arg(effect))
@@ -102,10 +99,10 @@ crumble <- function(data,
 			A = trt,
 			Y = outcome,
 			M = mediators,
-			Z = moc %??% NA_character_,
+			Z = moc %||% NA_character_,
 			W = covar,
-			C = obs %??% NA_character_,
-			id = id %??% NA_character_
+			C = obs %||% NA_character_,
+			id = id %||% NA_character_
 		),
 		weights = weights,
 		d0 = d0,

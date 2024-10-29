@@ -28,7 +28,7 @@ calc_eifs <- function(cd, alphas, thetas, .f) {
 			x = weighted.mean(j, cd@weights),
 			eif = j,
 			weights = cd@weights,
-			id = as.character(cd@data[[cd@vars@id]] %??% rep(1, nrow(eifs)))
+			id = as.character(cd@data[[cd@vars@id]] %||% rep(1, nrow(eifs)))
 		)
 	})
 }

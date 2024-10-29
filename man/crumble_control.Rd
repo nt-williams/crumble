@@ -8,9 +8,11 @@ crumble_control(
   crossfit_folds = 10L,
   mlr3superlearner_folds = 10L,
   zprime_folds = 1L,
-  epochs = 100L,
-  learning_rate = 0.01,
+  epochs = 500L,
+  learning_rate = 0.1,
   batch_size = 64,
+  patience = 10,
+  weight_decay = 1e-04,
   device = c("cpu", "cuda", "mps")
 )
 }
