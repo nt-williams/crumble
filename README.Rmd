@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
-*crumble* implements a modern, unified estimation strategy for common mediation estimands: natural effects [@pearl2022], organic effects [@lok2015], interventional effects [@vansteelandt2017], recanting twins [@vo2024], in causal inference in combination with modified treatment policies. It makes use of recent advancements in "Riesz-learning" to estimate a set of required nuisance parameters using deep learning. The result is a software package that is capable of estimating mediation effects with binary, categorical, continuous, or multivariate exposures with high-dimensional mediators and mediator-outcome confounders using machine learning.
+*crumble* implements a modern, unified estimation strategy [@liu2024general] for common mediation estimands: natural effects [@pearl2022], organic effects [@lok2015], interventional effects [@vansteelandt2017], recanting twins [@vo2024], in causal inference in combination with modified treatment policies. It makes use of recent advancements in "Riesz-learning" to estimate a set of required nuisance parameters using deep learning. The result is a software package that is capable of estimating mediation effects with binary, categorical, continuous, or multivariate exposures with high-dimensional mediators and mediator-outcome confounders using machine learning.
 
 ### Installation
 
