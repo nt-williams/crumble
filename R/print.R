@@ -25,3 +25,4 @@ print_estimate <- function(x, name) {
 									"riie" = "Randomized Indirect Effect")
 	cli_h3("{.emph {title}}")
 	print(x)
+}
