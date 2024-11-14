@@ -46,9 +46,10 @@ Imports:
     data.table,
     coro,
     generics,
-    lmtp, 
-    mlr3superlearner, 
-    progressr
+    lmtp,
+    mlr3superlearner,
+    progressr,
+    ife (>= 0.1.0)
 Suggests: 
     testthat (>= 3.0.0),
     truncnorm, 

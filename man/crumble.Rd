@@ -86,8 +86,6 @@ A \code{crumble} object containing the following components:
 \item{fits}{A list of the fitted values from the outcome regressions.}
 \item{call}{The matched call.}
 \item{effect}{The estimated effect type.}
-\item{id}{Vector of cluster level identifiers.}
-\item{weights}{Vector of survey weights.}
 }
 \description{
 General estimator for common mediation causal effects, including recanting

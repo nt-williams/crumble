@@ -6,20 +6,6 @@ add_psuedo <- function(data, x) {
 	cbind("tmp_crumble_pseudo_y" = x, data)
 }
 
-#' @importFrom stats na.omit weighted.mean var qnorm dist model.matrix predict setNames
-calc_stderror <- function(eif, id, weights) {
-	weights <- weights %??% rep(1, length(eif))
-	if (is.null(id)) id <- seq_along(eif)
-	clusters <- split(eif*weights, id)
-	j <- length(clusters)
-	sqrt(var(vapply(clusters, function(x) mean(x), 1)) / j)
-}
-
-calc_ci <- function(x, eif, id, weights) {
-	se <- calc_stderror(eif, id, weights)
-	x + c(-1, 1)*se*qnorm(0.975)
-}
-
 make_folds <- function(data, V, id, strata) {
 	if (missing(strata)) {
 		if (is.na(id)) {
@@ -75,8 +61,6 @@ is_binary <- function(x) {
 
 	# Get unique values quickly using unique()
 	unique_values <- unique(non_na_values)
-
-	assert_binary_0_1(unique_values)
 
 	# Check if all non-NA values are either 0 or 1
 	if (!all(non_na_values %in% c(0, 1))) {

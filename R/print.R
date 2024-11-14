@@ -1,88 +1,27 @@
+#' @importFrom cli cli_div cli_rule cli_end cli_h3
+#' @importFrom purrr iwalk
 #' @export
 print.crumble <- function(x, ...) {
-	switch(x$effect,
-				 N = print_natural(x),
-				 RT = print_rt(x),
-				 O = print_organic(x),
-				 RI = print_ri(x))
+	cat("\n")
+	d <- cli_div(theme = list(rule = list("line-type" = "double")))
+	cli_rule(left = "Results {.fn crumble}")
+	cli_end(d)
+	iwalk(x$estimates, print_estimate)
 }
 
-print_natural <- function(x) {
-	cat("\n")
-	d <- cli::cli_div(theme = list(rule = list("line-type" = "double")))
-	cli::cli_rule(left = "Results {.fn crumble}")
-	cli::cli_end(d)
-	cli::cli_h3("{.emph E[Y(d1) - Y(d0)]}")
-	cli::cli_text(cat("      "), "{.strong Estimate}: {round(x$estimates$ate, 4)}")
-	cli::cli_text(cat("    "), "{.strong Std. error}: {round(calc_stderror(x$estimates$eif_ate, x$id, x$weights), 4)}")
-	cli::cli_text(cat("        "), "{.strong 95% CI}: ({round(calc_ci(x$estimates$ate, x$estimates$eif_ate, x$id, x$weights)[1], 4)}, {round(calc_ci(x$estimates$ate, x$estimates$eif_ate, x$id, x$weights)[2], 4)})")
-	cli::cli_h3("{.emph Natural Direct Effect}")
-	cli::cli_text(cat("      "), "{.strong Estimate}: {round(x$estimates$p1, 4)}")
-	cli::cli_text(cat("    "), "{.strong Std. error}: {round(calc_stderror(x$estimates$eif_p1, x$id, x$weights), 4)}")
-	cli::cli_text(cat("        "), "{.strong 95% CI}: ({round(calc_ci(x$estimates$p1, x$estimates$eif_p1, x$id, x$weights)[1], 4)}, {round(calc_ci(x$estimates$p1, x$estimates$eif_p1, x$id, x$weights)[2], 4)})")
-	cli::cli_h3("{.emph Natural Indirect Effect}")
-	cli::cli_text(cat("      "), "{.strong Estimate}: {round(x$estimates$p4, 4)}")
-	cli::cli_text(cat("    "), "{.strong Std. error}: {round(calc_stderror(x$estimates$eif_p4, x$id, x$weights), 4)}")
-	cli::cli_text(cat("        "), "{.strong 95% CI}: ({round(calc_ci(x$estimates$p4, x$estimates$eif_p4, x$id, x$weights)[1], 4)}, {round(calc_ci(x$estimates$p4, x$estimates$eif_p4, x$id, x$weights)[2], 4)})")
-}
-
-print_rt <- function(x) {
-	cat("\n")
-	d <- cli::cli_div(theme = list(rule = list("line-type" = "double")))
-	cli::cli_rule(left = "Results {.fn crumble}")
-	cli::cli_end(d)
-	cli::cli_h3("{.emph E[Y(d1) - Y(d0)]}")
-	cli::cli_text(cat("      "), "{.strong Estimate}: {round(x$estimates$ate, 4)}")
-	cli::cli_text(cat("    "), "{.strong Std. error}: {round(calc_stderror(x$estimates$eif_ate, x$id, x$weights), 4)}")
-	cli::cli_text(cat("        "), "{.strong 95% CI}: ({round(calc_ci(x$estimates$ate, x$estimates$eif_ate, x$id, x$weights)[1], 4)}, {round(calc_ci(x$estimates$ate, x$estimates$eif_ate, x$id, x$weights)[2], 4)})")
-	cli::cli_h3("{.emph Path: A -> Y}")
-	cli::cli_text(cat("      "), "{.strong Estimate}: {round(x$estimates$p1, 4)}")
-	cli::cli_text(cat("    "), "{.strong Std. error}: {round(calc_stderror(x$estimates$eif_p1, x$id, x$weights), 4)}")
-	cli::cli_text(cat("        "), "{.strong 95% CI}: ({round(calc_ci(x$estimates$p1, x$estimates$eif_p1, x$id, x$weights)[1], 4)}, {round(calc_ci(x$estimates$p1, x$estimates$eif_p1, x$id, x$weights)[2], 4)})")
-	cli::cli_h3("{.emph Path: A -> Z -> Y}")
-	cli::cli_text(cat("      "), "{.strong Estimate}: {round(x$estimates$p2, 4)}")
-	cli::cli_text(cat("    "), "{.strong Std. error}: {round(calc_stderror(x$estimates$eif_p2, x$id, x$weights), 4)}")
-	cli::cli_text(cat("        "), "{.strong 95% CI}: ({round(calc_ci(x$estimates$p2, x$estimates$eif_p2, x$id, x$weights)[1], 4)}, {round(calc_ci(x$estimates$p2, x$estimates$eif_p2, x$id, x$weights)[2], 4)})")
-	cli::cli_h3("{.emph Path: A -> Z -> M -> Y}")
-	cli::cli_text(cat("      "), "{.strong Estimate}: {round(x$estimates$p3, 4)}")
-	cli::cli_text(cat("    "), "{.strong Std. error}: {round(calc_stderror(x$estimates$eif_p3, x$id, x$weights), 4)}")
-	cli::cli_text(cat("        "), "{.strong 95% CI}: ({round(calc_ci(x$estimates$p3, x$estimates$eif_p3, x$id, x$weights)[1], 4)}, {round(calc_ci(x$estimates$p3, x$estimates$eif_p3, x$id, x$weights)[2], 4)})")
-	cli::cli_h3("{.emph Path: A -> M -> Y}")
-	cli::cli_text(cat("      "), "{.strong Estimate}: {round(x$estimates$p4, 4)}")
-	cli::cli_text(cat("    "), "{.strong Std. error}: {round(calc_stderror(x$estimates$eif_p4, x$id, x$weights), 4)}")
-	cli::cli_text(cat("        "), "{.strong 95% CI}: ({round(calc_ci(x$estimates$p4, x$estimates$eif_p4, x$id, x$weights)[1], 4)}, {round(calc_ci(x$estimates$p4, x$estimates$eif_p4, x$id, x$weights)[2], 4)})")
-	cli::cli_h3("{.emph Intermediate Confounding}")
-	cli::cli_text(cat("      "), "{.strong Estimate}: {round(x$estimates$intermediate_confounding, 4)}")
-	cli::cli_text(cat("    "), "{.strong Std. error}: {round(calc_stderror(x$estimates$eif_intermediate_confounding, x$id, x$weights), 4)}")
-	cli::cli_text(cat("        "), "{.strong 95% CI}: ({round(calc_ci(x$estimates$intermediate_confounding, x$estimates$eif_intermediate_confounding, x$id, x$weights)[1], 4)}, {round(calc_ci(x$estimates$intermediate_confounding, x$estimates$eif_intermediate_confounding, x$id, x$weights)[2], 4)})")
-}
-
-print_organic <- function(x) {
-	cat("\n")
-	d <- cli::cli_div(theme = list(rule = list("line-type" = "double")))
-	cli::cli_rule(left = "Results {.fn crumble}")
-	cli::cli_end(d)
-	cli::cli_h3("{.emph Organic Direct Effect}")
-	cli::cli_text(cat("      "), "{.strong Estimate}: {round(x$estimates$ode, 4)}")
-	cli::cli_text(cat("    "), "{.strong Std. error}: {round(calc_stderror(x$estimates$eif_ode, x$id, x$weights), 4)}")
-	cli::cli_text(cat("        "), "{.strong 95% CI}: ({round(calc_ci(x$estimates$ode, x$estimates$eif_ode, x$id, x$weights)[1], 4)}, {round(calc_ci(x$estimates$ode, x$estimates$eif_ode, x$id, x$weights)[2], 4)})")
-	cli::cli_h3("{.emph Organic Indirect Effect}")
-	cli::cli_text(cat("      "), "{.strong Estimate}: {round(x$estimates$oie, 4)}")
-	cli::cli_text(cat("    "), "{.strong Std. error}: {round(calc_stderror(x$estimates$eif_oie, x$id, x$weights), 4)}")
-	cli::cli_text(cat("        "), "{.strong 95% CI}: ({round(calc_ci(x$estimates$oie, x$estimates$eif_oie, x$id, x$weights)[1], 4)}, {round(calc_ci(x$estimates$oie, x$estimates$eif_oie, x$id, x$weights)[2], 4)})")
-}
-
-print_ri <- function(x) {
-	cat("\n")
-	d <- cli::cli_div(theme = list(rule = list("line-type" = "double")))
-	cli::cli_rule(left = "Results {.fn crumble}")
-	cli::cli_end(d)
-	cli::cli_h3("{.emph Randomized Direct Effect}")
-	cli::cli_text(cat("      "), "{.strong Estimate}: {round(x$estimates$ride, 4)}")
-	cli::cli_text(cat("    "), "{.strong Std. error}: {round(calc_stderror(x$estimates$eif_ride, x$id, x$weights), 4)}")
-	cli::cli_text(cat("        "), "{.strong 95% CI}: ({round(calc_ci(x$estimates$ride, x$estimates$eif_ride, x$id, x$weights)[1], 4)}, {round(calc_ci(x$estimates$ride, x$estimates$eif_ride, x$id, x$weights)[2], 4)})")
-	cli::cli_h3("{.emph Randomized Indirect Effect}")
-	cli::cli_text(cat("      "), "{.strong Estimate}: {round(x$estimates$riie, 4)}")
-	cli::cli_text(cat("    "), "{.strong Std. error}: {round(calc_stderror(x$estimates$eif_riie, x$id, x$weights), 4)}")
-	cli::cli_text(cat("        "), "{.strong 95% CI}: ({round(calc_ci(x$estimates$riie, x$estimates$eif_riie, x$id, x$weights)[1], 4)}, {round(calc_ci(x$estimates$riie, x$estimates$eif_riie, x$id, x$weights)[2], 4)})")
-}
+print_estimate <- function(x, name) {
+	title <- switch(name,
+									"ate" = "Average Treatment Effect",
+									"direct" = "Direct Effect",
+									"indirect" = "Indirect Effect",
+									"p1" = "Path: A -> Y",
+									"p2" = "Path: A -> Z -> Y",
+									"p3" = "Path: A -> Z -> M -> Y",
+									"p4" = "Path: A -> M -> Y",
+									"intermediate_confounding" = "Intermediate Confounding",
+									"ode" = "Organic Direct Effect",
+									"oie" = "Organic Indirect Effect",
+									"ride" = "Randomized Direct Effect",
+									"riie" = "Randomized Indirect Effect")
+	cli_h3("{.emph {title}}")
+	print(x)
