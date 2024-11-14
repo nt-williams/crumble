@@ -55,5 +55,3 @@ Suggests:
     truncnorm, 
     mma
 Config/testthat/edition: 3
-Remotes:  
-    nt-williams
