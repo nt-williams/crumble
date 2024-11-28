@@ -27,6 +27,9 @@ capable of estimating mediation effects with binary, categorical,
 continuous, or multivariate exposures with high-dimensional mediators
 and mediator-outcome confounders using machine learning.
 
+This work was supported by the National Institute on Drug Abuse
+\[R00DA042127\].
+
 ### Installation
 
 ``` r
