@@ -51,7 +51,7 @@ Imports:
     lmtp,
     mlr3superlearner,
     progressr,
-    ife (>= 0.1.0)
+    ife (>= 0.2.1)
 Suggests: 
     testthat (>= 3.0.0),
     truncnorm, 
