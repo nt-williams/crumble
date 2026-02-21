@@ -11,7 +11,7 @@ make_folds <- function(data, V, id, strata) {
 		if (is.na(id)) {
 			folds <- origami::make_folds(data, V = V)
 		} else {
-			folds <- origami::make_folds(data, cluster_ids = id, V = V)
+			folds <- origami::make_folds(data, cluster_ids = data[[id]], V = V)
 		}
 
 		if (V > 1) {
