@@ -1,3 +1,9 @@
+# crumble 0.1.4
+
+## General
+
+* Removing `origami` as a dependency.
+
 # crumble 0.1.2
 
 ## Bug fixes
