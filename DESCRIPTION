@@ -37,7 +37,6 @@ RoxygenNote: 7.3.2
 Imports: 
     checkmate,
     Matrix,
-    origami,
     torch,
     Rsymphony,
     purrr,

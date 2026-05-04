@@ -116,7 +116,7 @@ crumble <- function(data,
 	cd <- add_zp(cd, moc, control)
 
 	# Create folds for cross fitting
-	folds <- make_folds(cd@data, control$crossfit_folds, cd@vars@id, cd@vars@Y)
+	folds <- create_folds(cd@data, control$crossfit_folds, cd@vars@id, cd@vars@Y)
 
 	# Estimate \theta nuisance parameters
 	thetas <- estimate_theta(cd, thetas, folds, params, learners, control)

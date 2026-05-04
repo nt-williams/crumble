@@ -6,40 +6,6 @@ add_psuedo <- function(data, x) {
 	cbind("tmp_crumble_pseudo_y" = x, data)
 }
 
-make_folds <- function(data, V, id, strata) {
-	if (missing(strata)) {
-		if (is.na(id)) {
-			folds <- origami::make_folds(data, V = V)
-		} else {
-			folds <- origami::make_folds(data, cluster_ids = id, V = V)
-		}
-
-		if (V > 1) {
-			return(folds)
-		}
-
-		folds[[1]]$training_set <- folds[[1]]$validation_set
-		return(folds)
-	}
-
-	binomial <- is_binary(data[[strata]])
-	if ((is.na(id) | length(unique(data[[id]])) == nrow(data)) & binomial) {
-		strata <- data[[strata]]
-		strata[is.na(strata)] <- 2
-		folds <- origami::make_folds(data, V = V, strata_ids = strata)
-	} else {
-		if (is.na(id)) folds <- origami::make_folds(data, V = V)
-		else folds <- origami::make_folds(data, cluster_ids = data[[id]], V = V)
-	}
-
-	if (V > 1) {
-		return(folds)
-	}
-
-	folds[[1]]$training_set <- folds[[1]]$validation_set
-	folds
-}
-
 as_torch <- function(data, device) {
 	torch::torch_tensor(as.matrix(data), dtype = torch::torch_float(), device = device)
 }
